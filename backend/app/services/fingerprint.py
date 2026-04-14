@@ -6,6 +6,7 @@ def generate_fingerprint():
     return str(uuid.uuid4())
 
 
+
 # Step 2: Convert text → binary
 def text_to_binary(text):
     return ''.join(format(ord(c), '08b') for c in text)
