@@ -1,10 +1,9 @@
-"""
-FastAPI/Flask application entry point
-"""
 from fastapi import FastAPI
 
-app = FastAPI()
+from backend.app.api.routes import upload, detect
 
-@app.get("/")
-def read_root():
-    return {"message": "Backend API running"}
+app = FastAPI(title="DataDNA AI")
+
+# Include routers
+app.include_router(upload.router)
+app.include_router(detect.router)
