@@ -2,8 +2,8 @@ from fastapi import APIRouter, UploadFile, File
 import shutil
 import os
 
-from backend.app.services.fingerprint import create_datadna
-from backend.app.services.watermark import embed_watermark
+from app.services.fingerprint import create_datadna
+from app.services.watermark import embed_watermark
 
 router = APIRouter(prefix="/upload", tags=["Upload"])
 

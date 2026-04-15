@@ -2,7 +2,7 @@ from fastapi import APIRouter, UploadFile, File
 import shutil
 import os
 
-from backend.app.services.extraction import extract_watermark
+from app.services.extraction import extract_watermark
 
 router = APIRouter(prefix="/detect", tags=["Detect"])
 
