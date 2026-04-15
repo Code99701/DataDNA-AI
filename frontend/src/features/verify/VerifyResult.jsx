@@ -1,46 +1,100 @@
 import React from 'react';
 
-const VerifyResult = ({ data, isProcessing }) => {
-  if (isProcessing) {
+const RADIUS = 60;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+const ConfidenceRing = ({ value }) => {
+  const dash = (value / 100) * CIRCUMFERENCE;
+  return (
+    <div className="confidence-ring-container">
+      <svg className="confidence-ring-svg" viewBox="0 0 140 140">
+        <defs>
+          <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stopColor="#8b5cf6" />
+            <stop offset="50%"  stopColor="#6366f1" />
+            <stop offset="100%" stopColor="#06b6d4" />
+          </linearGradient>
+        </defs>
+        <circle className="confidence-ring-track" cx="70" cy="70" r={RADIUS} />
+        <circle
+          className="confidence-ring-fill"
+          cx="70" cy="70" r={RADIUS}
+          strokeDasharray={`${dash} ${CIRCUMFERENCE - dash}`}
+          strokeDashoffset={0}
+        />
+      </svg>
+      <div className="confidence-ring-label">
+        <span className="confidence-value">{value}%</span>
+        <span className="confidence-label">Match</span>
+      </div>
+    </div>
+  );
+};
+
+const VerifyResult = ({ result, loading }) => {
+  if (loading) {
     return (
-      <div className="result-card">
-        <h2 style={{ color: 'var(--text-muted)' }}>AI Processing...</h2>
-        <p style={{ marginTop: '1rem', color: 'var(--accent)' }}>Running Deep Autoencoder...</p>
+      <div className="result-panel">
+        <div className="spinner" />
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Analyzing fingerprint…</p>
       </div>
     );
   }
 
-  if (!data) {
+  if (!result) {
     return (
-      <div className="result-card">
-        <div style={{ opacity: 0.3 }}>
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="16" x2="12" y2="12"></line>
-            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-          </svg>
-        </div>
-        <h3 style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Awaiting Analysis</h3>
-        <p style={{ marginTop: '0.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem' }}>
+      <div className="result-panel result-panel--empty">
+        <div style={{ fontSize: '4rem', opacity: 0.4 }}>🔍</div>
+        <h3 style={{ color: 'var(--text-muted)' }}>Awaiting Analysis</h3>
+        <p style={{ textAlign: 'center', fontSize: '0.85rem', maxWidth: 220 }}>
           Upload a file on the left to extract its ownership signature.
         </p>
       </div>
     );
   }
 
+  if (!result.found) {
+    return (
+      <div className="result-panel">
+        <div style={{ fontSize: '3.5rem' }}>❓</div>
+        <h3 style={{ color: 'var(--accent-warn)' }}>No Fingerprint Found</h3>
+        <p style={{ textAlign: 'center', fontSize: '0.85rem', maxWidth: 260 }}>
+          This file does not appear to contain a DataDNA watermark,
+          or the watermark has been removed/damaged.
+        </p>
+        <div className="badge badge-amber">Unverified</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="result-card animation-fadeIn">
-      <h2 style={{ marginBottom: '2rem' }}>Extraction Result</h2>
-      
-      <div className="confidence-ring" style={{ '--percentage': data.confidence }}>
-        <span className="confidence-value">{data.confidence}%</span>
+    <div className="result-panel animate-fadeInUp">
+      <div className="badge badge-green" style={{ marginBottom: 'var(--space-sm)' }}>
+        ✅ Owner Identified
       </div>
-      <p style={{ color: 'var(--text-muted)', marginBottom: '2rem', fontSize: '0.9rem' }}>Match Confidence Level</p>
-      
-      <div className="owner-info">
-        <span className="owner-label">Original Owner</span>
-        <span className="owner-name">{data.owner}</span>
+
+      <ConfidenceRing value={result.confidence} />
+
+      <div className="owner-result-card" style={{ marginTop: 'var(--space-sm)' }}>
+        <span className="owner-result-label">👤 Original Owner</span>
+        <span className="owner-result-value">{result.owner}</span>
       </div>
+
+      {result.watermark_id && (
+        <div className="owner-result-card">
+          <span className="owner-result-label">🔑 Watermark ID</span>
+          <span className="owner-result-value" style={{ fontSize: '0.85rem' }}>{result.watermark_id}</span>
+        </div>
+      )}
+
+      {result.embed_date && (
+        <div className="owner-result-card">
+          <span className="owner-result-label">📅 Embedded On</span>
+          <span className="owner-result-value" style={{ fontSize: '0.85rem' }}>
+            {new Date(result.embed_date).toLocaleDateString('en-IN', { dateStyle: 'long' })}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

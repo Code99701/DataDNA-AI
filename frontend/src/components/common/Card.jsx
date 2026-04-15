@@ -1,12 +1,21 @@
-export default function Card({ children }) {
+import React from 'react';
+
+/**
+ * Reusable Card / glass panel component.
+ * @param {string} variant - '' | 'elevated' | 'accent' | 'danger' | 'success'
+ */
+const Card = ({ children, variant = '', className = '', ...props }) => {
+  const classes = [
+    'card',
+    variant ? `card--${variant}` : '',
+    className,
+  ].filter(Boolean).join(' ');
+
   return (
-    <div style={{
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "10px",
-      marginTop: "20px"
-    }}>
+    <div className={classes} {...props}>
       {children}
     </div>
   );
-}
+};
+
+export default Card;
