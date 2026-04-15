@@ -1,6 +1,7 @@
 import uuid
 import hashlib
 
+
 # Step 1: Generate unique fingerprint
 def generate_fingerprint():
     return str(uuid.uuid4())
@@ -18,10 +19,9 @@ def hash_fingerprint(fingerprint):
 
 
 # Step 4: Full pipeline (DataDNA)
-def create_datadna():
+def create_datadna(file_path=None):
     fingerprint = generate_fingerprint()
     
-    # Optional: add end marker for safe extraction
     fingerprint_with_marker = fingerprint + "###"
     
     binary = text_to_binary(fingerprint_with_marker)

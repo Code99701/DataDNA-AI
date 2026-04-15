@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/common/Navbar';
 import UploadPage    from './features/upload/UploadPage';
 import VerifyPage    from './features/verify/VerifyPage';
-import RegisterPage  from './features/identity/RegisterPage';
+import RegisterFingerprint from "./features/identity/RegisterFingerprint";
 import IdentifyPage  from './features/identity/IdentifyPage';
 import Dashboard     from './pages/Dashboard';
 
@@ -16,7 +16,7 @@ function App() {
           <Routes>
             <Route path="/"          element={<UploadPage />}   />
             <Route path="/verify"    element={<VerifyPage />}   />
-            <Route path="/register"  element={<RegisterPage />} />
+            <Route path="/register" element={<RegisterFingerprint />} />
             <Route path="/identify"  element={<IdentifyPage />} />
             <Route path="/dashboard" element={<Dashboard />}    />
           </Routes>

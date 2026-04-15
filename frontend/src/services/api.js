@@ -25,14 +25,17 @@ export const verifyFingerprint = async (file) => {
   return handleResponse(res);
 };
 
-// --- Identity Registration ---
-export const registerIdentity = async (payload) => {
-  const res = await fetch(`${BASE_URL}/register-identity`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+// --- Identity Registration (FIXED) ---
+export const registerIdentity = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${BASE_URL}/register-fingerprint`, {
+    method: "POST",
+    body: formData,
   });
-  return handleResponse(res);
+
+  return res.json();
 };
 
 // --- Identity Identification ---
