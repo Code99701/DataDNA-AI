@@ -1,10 +1,45 @@
-import React from 'react';
-import VerifyPage from '../features/verify/VerifyPage';
+import { useState } from "react";
+import Layout from "../components/common/Layout";
 
-const Dashboard = () => {
+import UploadPage from "../features/upload/UploadPage";
+import VerifyPage from "../features/verify/VerifyPage";
+import IdentifyFingerprint from "../features/identity/IdentifyFingerprint";
+
+export default function Dashboard() {
+  const [tab, setTab] = useState("upload");
+
   return (
-    <VerifyPage />
-  );
-};
+    <Layout>
+      {/* Tabs */}
+      <div className="tabs">
+        <button
+          className={tab === "upload" ? "active" : ""}
+          onClick={() => setTab("upload")}
+        >
+          Upload
+        </button>
 
-export default Dashboard;
+        <button
+          className={tab === "verify" ? "active" : ""}
+          onClick={() => setTab("verify")}
+        >
+          Verify
+        </button>
+
+        <button
+          className={tab === "identify" ? "active" : ""}
+          onClick={() => setTab("identify")}
+        >
+          Identify
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="content">
+        {tab === "upload" && <UploadPage />}
+        {tab === "verify" && <VerifyPage />}
+        {tab === "identify" && <IdentifyFingerprint />}
+      </div>
+    </Layout>
+  );
+}
