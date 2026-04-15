@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Result = ({ data, isProcessing }) => {
+const VerifyResult = ({ data, isProcessing }) => {
   if (isProcessing) {
     return (
       <div className="result-card">
@@ -45,4 +45,4 @@ const Result = ({ data, isProcessing }) => {
   );
 };
 
-export default Result;
+export default VerifyResult;

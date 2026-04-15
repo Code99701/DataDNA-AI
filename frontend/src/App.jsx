@@ -1,35 +1,22 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import Home from './pages/Home';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/common/Navbar';
+import UploadPage from './features/upload/UploadPage';
 import Dashboard from './pages/Dashboard';
-
-function Navigation() {
-  const location = useLocation();
-  
-  return (
-    <nav className="navbar">
-      <div className="nav-brand">DataDNA AI</div>
-      <ul className="nav-links">
-        <li>
-          <Link to="/" className={location.pathname === '/' ? 'active' : ''}>Home</Link>
-        </li>
-        <li>
-          <Link to="/dashboard" className={location.pathname === '/dashboard' ? 'active' : ''}>Detect Leak</Link>
-        </li>
-      </ul>
-    </nav>
-  );
-}
+import RegisterPage from './features/identity/RegisterPage';
+import IdentifyPage from './features/identity/IdentifyPage';
 
 function App() {
   return (
     <Router>
       <div className="App">
-        <Navigation />
+        <Navbar />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<UploadPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/identify" element={<IdentifyPage />} />
           </Routes>
         </main>
       </div>
