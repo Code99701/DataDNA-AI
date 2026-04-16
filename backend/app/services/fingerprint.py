@@ -1,34 +1,31 @@
-import uuid
+"""
+Fingerprinting service — generates a SHA-256 hash of file contents.
+"""
+
 import hashlib
+import logging
+
+logger = logging.getLogger(__name__)
+
+CHUNK_SIZE = 8192  # Read in 8 KB chunks to handle large files efficiently
 
 
-# Step 1: Generate unique fingerprint
-def generate_fingerprint():
-    return str(uuid.uuid4())
+def generate_fingerprint(file_bytes: bytes) -> str:
+    """
+    Generate a SHA-256 fingerprint from raw file bytes.
 
+    Args:
+        file_bytes: The complete file content as bytes.
 
-
-# Step 2: Convert text → binary
-def text_to_binary(text):
-    return ''.join(format(ord(c), '08b') for c in text)
-
-
-# Step 3: Hash fingerprint (SHA256)
-def hash_fingerprint(fingerprint):
-    return hashlib.sha256(fingerprint.encode()).hexdigest()
-
-
-# Step 4: Full pipeline (DataDNA)
-def create_datadna(file_path=None):
-    fingerprint = generate_fingerprint()
-    
-    fingerprint_with_marker = fingerprint + "###"
-    
-    binary = text_to_binary(fingerprint_with_marker)
-    hashed = hash_fingerprint(fingerprint)
-
-    return {
-        "fingerprint": fingerprint,
-        "binary": binary,
-        "hash": hashed
-    }
+    Returns:
+        Hex-encoded SHA-256 hash string.
+    """
+    sha256 = hashlib.sha256()
+    # Process in chunks to support streaming in the future
+    offset = 0
+    while offset < len(file_bytes):
+        sha256.update(file_bytes[offset : offset + CHUNK_SIZE])
+        offset += CHUNK_SIZE
+    fingerprint = sha256.hexdigest()
+    logger.debug("Generated fingerprint: %s", fingerprint)
+    return fingerprint
