@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DataDNA AI | Precision Genomic Fingerprinting</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#646464",
+                    "secondary-fixed-dim": "#c6c6c6",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#f9f9fb",
+                    "error": "#ba1a1a",
+                    "primary-fixed": "#d7e3ff",
+                    "on-surface": "#1a1c1d",
+                    "surface-container": "#eeeef0",
+                    "primary-container": "#0066cc",
+                    "surface": "#f9f9fb",
+                    "on-background": "#1a1c1d",
+                    "tertiary-fixed": "#e3e2e7",
+                    "on-surface-variant": "#414753",
+                    "primary-fixed-dim": "#aac7ff",
+                    "secondary-fixed": "#e2e2e2",
+                    "outline": "#727784",
+                    "surface-dim": "#d9dadc",
+                    "surface-container-highest": "#e2e2e4",
+                    "tertiary-container": "#68686d",
+                    "surface-variant": "#e2e2e4",
+                    "surface-container-high": "#e8e8ea",
+                    "secondary": "#5e5e5e",
+                    "on-primary-container": "#dfe8ff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#474747",
+                    "inverse-on-surface": "#f0f0f2",
+                    "tertiary": "#4f5054",
+                    "on-tertiary-fixed-variant": "#46464b",
+                    "on-tertiary-fixed": "#1a1b1f",
+                    "secondary-container": "#e2e2e2",
+                    "on-primary-fixed": "#001b3e",
+                    "inverse-primary": "#aac7ff",
+                    "surface-container-low": "#f3f3f5",
+                    "on-secondary-fixed": "#1b1b1b",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "outline-variant": "#c1c6d5",
+                    "on-tertiary-container": "#e9e8ed",
+                    "error-container": "#ffdad6",
+                    "surface-tint": "#005cba",
+                    "inverse-surface": "#2f3132",
+                    "on-primary-fixed-variant": "#00458e",
+                    "tertiary-fixed-dim": "#c7c6cb",
+                    "primary": "#004e9f",
+                    "on-error-container": "#93000a",
+                    "surface-bright": "#f9f9fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9fb; color: #1a1c1d; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-effect { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .hero-gradient { background: linear-gradient(135deg, #004e9f 0%, #0066cc 100%); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl">
+<nav class="flex justify-between items-center max-w-7xl mx-auto px-8 h-20 w-full">
+<div class="flex items-center gap-8">
+<a class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white" href="#">DataDNA AI</a>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight" href="#">Product</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight" href="#">Technology</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight" href="#">Security</a>
+<a class="text-blue-600 dark:text-blue-400 font-bold font-['Inter'] tracking-tight" href="#">Demo</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary hover:opacity-80 transition-all text-on-primary px-6 py-2.5 rounded-xl font-semibold text-sm">Get Started</button>
+</div>
+</nav>
+</header>
+<main class="pt-20">
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center justify-center overflow-hidden px-8">
+<div class="max-w-5xl mx-auto text-center z-10">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high mb-8">
+<span class="w-2 h-2 rounded-full bg-primary shadow-[0_0_10px_rgba(0,78,159,0.5)]"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Genomic Protection 2.0</span>
+</div>
+<h1 class="text-6xl md:text-8xl font-extrabold tracking-tighter text-on-surface mb-8 leading-[0.9]">
+                    Own Your Data.<br/>Track Every File.
+                </h1>
+<p class="text-xl md:text-2xl text-on-surface-variant max-w-2xl mx-auto mb-12 font-medium leading-relaxed">
+                    Embed immutable digital fingerprints into your datasets. Detect leaks, verify ownership, and protect your AI training assets with surgical precision.
+                </p>
+<div class="flex flex-col md:flex-row items-center justify-center gap-6">
+<button class="hero-gradient text-on-primary px-10 py-5 rounded-xl font-bold text-lg hover:scale-[1.02] transition-transform shadow-xl">Try Demo</button>
+<button class="bg-surface-container-high text-on-surface px-10 py-5 rounded-xl font-bold text-lg hover:bg-surface-container-highest transition-colors">Watch Film</button>
+</div>
+</div>
+<!-- Aesthetic Abstract background element -->
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-primary-fixed/20 rounded-full blur-[120px]"></div>
+<div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-200/20 rounded-full blur-[120px]"></div>
+</section>
+<!-- Product Showcase (Bento Grid / Apple Style) -->
+<section class="py-32 px-8 bg-surface-container-low">
+<div class="max-w-7xl mx-auto">
+<div class="mb-20">
+<h2 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">Engineered for Transparency.</h2>
+<p class="text-lg text-on-surface-variant max-w-xl">Four pillars of digital sovereignity, powered by advanced steganographic AI.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Card 1 -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-[2rem] p-10 flex flex-col justify-between overflow-hidden relative group min-h-[450px]">
+<div>
+<span class="material-symbols-outlined text-primary text-4xl mb-6">fingerprint</span>
+<h3 class="text-3xl font-bold mb-4">Invisible Fingerprinting</h3>
+<p class="text-on-surface-variant max-w-md text-lg">Inject imperceptible, mathematically unique signatures into any file format without altering data integrity or performance.</p>
+</div>
+<img class="absolute right-0 bottom-0 w-1/2 h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="close-up of digital microscopic data structures glowing with neon blue light in a clean studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfyBLLNJG8fCqtb4V9N-Uz35Ql_HAKwM4PvL384tcXY0cpJpNWQgVH3Ir1eSgfze7hY9EMA_7giWSJB2-QbEpU-0TH8uKyNG4HNWkvKLLZwcwGKoFVkj0sJPgqjSjAAJ9voLFJBwN_rUuxsnPLkKvnAXmaEvHS1cXHnZEiMaDOyZAXv7WiZumWZY2IGIKRwERZyIb4_Lg2Al6Hqvp1YoXomSBiXvIQGLZg0TPBTSSVWAiFREVNW86ZnztvHNsZH6be8zlNxC_plL-O"/>
+</div>
+<!-- Card 2 -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-[2rem] p-10 flex flex-col justify-between min-h-[450px]">
+<div>
+<span class="material-symbols-outlined text-primary text-4xl mb-6">leak_add</span>
+<h3 class="text-3xl font-bold mb-4">Leak Detection</h3>
+<p class="text-on-surface-variant text-lg">Trace unauthorized distribution back to the source in seconds with our global data-pollen tracking network.</p>
+</div>
+<div class="h-32 bg-surface-container-low rounded-2xl flex items-center justify-center">
+<span class="text-primary font-bold animate-pulse">Scanning Network...</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="md:col-span-4 bg-surface-container-lowest rounded-[2rem] p-10 flex flex-col justify-between min-h-[450px]">
+<div>
+<span class="material-symbols-outlined text-primary text-4xl mb-6">verified_user</span>
+<h3 class="text-3xl font-bold mb-4">Ownership Verification</h3>
+<p class="text-on-surface-variant text-lg">Cryptographic proof of origin that stands up in legal audits, securing your intellectual property globally.</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="md:col-span-8 bg-surface-container-lowest rounded-[2rem] p-10 flex flex-col justify-between overflow-hidden relative group min-h-[450px]">
+<div class="z-10">
+<span class="material-symbols-outlined text-primary text-4xl mb-6">psychology</span>
+<h3 class="text-3xl font-bold mb-4">AI-based Robustness</h3>
+<p class="text-on-surface-variant max-w-md text-lg">Our DNA persists through format changes, resizing, compression, and even AI re-generation. Indestructible protection.</p>
+</div>
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent"></div>
+<img class="absolute right-0 bottom-0 w-2/3 h-full object-cover group-hover:scale-110 transition-transform duration-1000" data-alt="abstract neural network visualization with crystalline structures and soft blue light rays representing data security" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfKV7BeVDbxU-CoUp6b7xkfikPXcDRcX2soReJufxExz-gru4fmlR0X4VYW3Ri9HMTdg0tRExdbq195oDVr4ZRX7fLd2_ltzl2YABkfW7-NDUop7_qP-5klDm60ICEBK8qYDEtquZCT7XJqNwW0WYvHxxOZAFhvg37Xt0dlm-fuP085U7UMJraRxFxQtFq_bIaqx0VRbVyhKv-BbeaxROpJKh8YYaYTgih7A2eeVmIGoxIGZgWYlk4ciKVnvfz7RZAq5PYay6UgJhc"/>
+</div>
+</div>
+</div>
+</section>
+<!-- How It Works (Asymmetric Flow) -->
+<section class="py-32 px-8 bg-surface">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+<div>
+<h2 class="text-5xl font-extrabold tracking-tighter mb-12">The Cycle of Trust.</h2>
+<div class="space-y-16">
+<div class="flex gap-8 group">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">1</div>
+<div>
+<h4 class="text-2xl font-bold mb-2">Upload &amp; Analyze</h4>
+<p class="text-on-surface-variant leading-relaxed">Simply upload your high-value datasets or media assets. Our AI analyzes the structural DNA of each file.</p>
+</div>
+</div>
+<div class="flex gap-8 group">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">2</div>
+<div>
+<h4 class="text-2xl font-bold mb-2">Fingerprint Injection</h4>
+<p class="text-on-surface-variant leading-relaxed">An invisible, steganographic layer is woven into the data. It's unique to you and practically impossible to remove.</p>
+</div>
+</div>
+<div class="flex gap-8 group">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center font-bold text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">3</div>
+<div>
+<h4 class="text-2xl font-bold mb-2">Monitor &amp; Verify</h4>
+<p class="text-on-surface-variant leading-relaxed">Track your data across the web. If a copy is found, use our verify tool to prove ownership instantly.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="relative bg-surface-container-high rounded-[3rem] p-4 aspect-square flex items-center justify-center">
+<div class="w-full h-full rounded-[2.5rem] overflow-hidden bg-white shadow-2xl flex flex-col">
+<div class="p-6 border-b border-surface-container flex items-center justify-between">
+<div class="flex gap-2">
+<div class="w-3 h-3 rounded-full bg-red-400"></div>
+<div class="w-3 h-3 rounded-full bg-amber-400"></div>
+<div class="w-3 h-3 rounded-full bg-green-400"></div>
+</div>
+<span class="text-xs font-bold text-slate-400 uppercase tracking-widest">DNA Verifier v4.0</span>
+</div>
+<div class="flex-grow p-12 flex flex-col items-center justify-center text-center">
+<div class="w-24 h-24 rounded-full bg-primary-fixed flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary text-5xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h5 class="text-3xl font-bold mb-2">100% Match Found</h5>
+<p class="text-on-surface-variant mb-8">Asset: Training_Dataset_Alpha.csv<br/>Owner: DataDNA Enterprise Admin</p>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-xl font-bold text-sm">Download Legal Proof</button>
+</div>
+</div>
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-100 rounded-full -z-10 blur-2xl opacity-50"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 px-8">
+<div class="max-w-7xl mx-auto">
+<div class="hero-gradient rounded-[3rem] p-16 text-center text-on-primary relative overflow-hidden">
+<h2 class="text-5xl md:text-6xl font-extrabold tracking-tighter mb-8 relative z-10">Secure Your Digital Assets Today.</h2>
+<p class="text-xl md:text-2xl text-on-primary-container max-w-2xl mx-auto mb-12 font-medium relative z-10">
+                        Join 200+ enterprise teams protecting their intellectual property with the world's most advanced fingerprinting technology.
+                    </p>
+<div class="relative z-10">
+<button class="bg-white text-primary px-12 py-5 rounded-2xl font-bold text-xl hover:scale-105 transition-transform shadow-2xl">Start Your Free Trial</button>
+</div>
+<!-- Decorative overlay -->
+<div class="absolute top-0 right-0 w-1/2 h-full opacity-10">
+<span class="material-symbols-outlined text-[30rem] rotate-12 select-none">genetics</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+<div class="max-w-7xl mx-auto px-8 py-16 flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col items-center md:items-start gap-4">
+<div class="text-lg font-bold text-slate-900 dark:text-white">DataDNA AI</div>
+<p class="font-['Inter'] text-sm text-slate-500 dark:text-slate-400">© 2024 DataDNA AI. Precision Genomic Fingerprinting.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-['Inter'] text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" href="#">Privacy Policy</a>
+<a class="font-['Inter'] text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" href="#">Terms of Service</a>
+<a class="font-['Inter'] text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" href="#">API Documentation</a>
+<a class="font-['Inter'] text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

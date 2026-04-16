@@ -22,6 +22,9 @@ MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "datadna")
 
 # ── File Storage ────────────────────────────────────────────
 STORAGE_DIR = os.getenv("STORAGE_DIR", os.path.join(os.getcwd(), "storage"))
+GCP_PROJECT_ID = os.getenv("GCP_PROJECT_ID")
+GCS_BUCKET_NAME = os.getenv("GCS_BUCKET_NAME")
+GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
 # ── Blockchain ──────────────────────────────────────────────
 BLOCKCHAIN_FILE = os.getenv("BLOCKCHAIN_FILE", "blockchain.json")

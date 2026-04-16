@@ -1,24 +1,45 @@
+import uvicorn
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
-
-from app.api.routes import upload, detect
-from app.api.routes import biometric
-from app.api.routes.register import router as register_router
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import APP_TITLE, APP_VERSION, APP_DESCRIPTION
+from app.api.routes import upload, detect
+from app.db.database import connect_db, close_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await connect_db()
+    yield
+    # Shutdown
+    await close_db()
 
 
-app = FastAPI(title="DataDNA AI")
+app = FastAPI(
+    title=APP_TITLE,
+    version=APP_VERSION,
+    description=APP_DESCRIPTION,
+    lifespan=lifespan,
+)
 
-app.include_router(biometric.router)
-app.include_router(register_router)
-# Include routers
-app.include_router(upload.router)
-app.include_router(detect.router)
-
+# CORS Middleware (allow frontend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # allow frontend
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(upload.router)
+app.include_router(detect.router)
+
+@app.get("/")
+def root():
+    return {"message": "Welcome to DataDNA AI API"}
+
+
+if __name__ == "__main__":
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

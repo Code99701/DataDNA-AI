@@ -88,7 +88,7 @@ Leaked File → Detection API → Extraction Engine → Matching Engine → Resu
 
 ### Storage
 
-* Local / AWS S3
+* Google Cloud Storage (preferred) with local fallback
 
 ---
 
@@ -167,6 +167,16 @@ python main.py
 
 * Upload: `POST /upload`
 * Detect: `POST /detect`
+
+### 5. Optional Google Cloud Storage Setup
+
+Set these env vars to store files in Google Cloud Storage:
+
+* `GCS_BUCKET_NAME`
+* `GCP_PROJECT_ID` (optional if inferred by credentials)
+* `GOOGLE_APPLICATION_CREDENTIALS` (path to service account json)
+
+If `GCS_BUCKET_NAME` is not set, backend stores files on local disk.
 
 ---
 

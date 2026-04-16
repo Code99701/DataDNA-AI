@@ -15,6 +15,7 @@ class FileDocument(BaseModel):
     hash: str = Field(..., description="SHA-256 fingerprint of file contents")
     owner_id: str = Field(default="owner_default", description="Owner identifier")
     path: str = Field(..., description="Relative storage path on disk")
+    storage_provider: str = Field(default="local", description="Storage backend (local/gcs)")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
@@ -22,6 +23,8 @@ class FileDocument(BaseModel):
 class UploadResponse(BaseModel):
     file_id: str
     hash: str
+    storage_provider: str
+    storage_path: str
     blockchain_index: Optional[int] = None
     message: str = "File stored successfully"
 
@@ -37,5 +40,7 @@ class DetectMatch(BaseModel):
 class DetectResponse(BaseModel):
     hash: str
     match_found: bool
+    blockchain_recorded: bool
+    blockchain_verified: bool
     result: Optional[DetectMatch] = None
     message: str
