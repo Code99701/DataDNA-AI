@@ -262,7 +262,8 @@ async function apiCall(endpoint, actionName) {
     resultMessage.textContent = "";
 
     try {
-        const response = await fetch(`http://localhost:8000/${endpoint}`, {
+        // Note: trailing slash required to match FastAPI router prefix
+        const response = await fetch(`http://localhost:8000/${endpoint}/`, {
             method: 'POST',
             body: formData
         });
@@ -276,25 +277,29 @@ async function apiCall(endpoint, actionName) {
         if (response.ok) {
             if (endpoint === 'detect') {
                 if (data.match_found) {
-                    resultName.textContent = data.result.owner_id;
-                    resultConfidence.textContent = "100%";
+                    resultName.textContent = `Owner: ${data.result.owner_id}`;
+                    resultConfidence.textContent = "100% Match";
                 } else {
-                    resultName.textContent = "No Match";
+                    resultName.textContent = "No Match Found";
                     resultConfidence.textContent = "0%";
                 }
             } else {
-                resultName.textContent = "File Stored";
-                resultConfidence.textContent = "Protected";
+                // Upload response
+                resultName.textContent = `Stored (ID: ${data.file_id})`;
+                resultConfidence.textContent = "✓ Protected";
             }
             resultMessage.textContent = JSON.stringify(data, null, 2);
         } else {
             resultName.textContent = "Error";
             resultMessage.textContent = data.detail || JSON.stringify(data);
+            progressBar.style.width = "0%";
+            statusBadge.textContent = "Failed";
         }
     } catch (err) {
         resultName.textContent = "Network Error";
-        resultMessage.textContent = err.message;
+        resultMessage.textContent = `Could not reach backend at localhost:8000\n${err.message}`;
         progressBar.style.width = "0%";
+        statusBadge.textContent = "Offline";
     }
 }
 
