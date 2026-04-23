@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 
 from app.db.database import get_db
 from app.db.models import FileDocument, UploadResponse
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/upload", tags=["Upload"])
 
 
 @router.post("/", response_model=UploadResponse, status_code=201)
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), owner: str = Form("owner_default")):
     """Upload file and produce: file -> hash -> stored -> blockchain record."""
     try:
         contents = await file.read()
@@ -42,7 +42,7 @@ async def upload_file(file: UploadFile = File(...)):
         file_id=file_id,
         filename=file.filename,
         hash=file_hash,
-        owner_id="owner_default",
+        owner_id=owner,
         path=stored_path,
         storage_provider=storage_provider,
     )
