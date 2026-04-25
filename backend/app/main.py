@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import APP_TITLE, APP_VERSION, APP_DESCRIPTION
-from app.api.routes import upload, detect
+from app.api.routes import upload, detect, files
 from app.db.database import connect_db, close_db
 from app.api.routes import biometric   # FIXED import (no backend.app)
 
@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(upload.router)
 app.include_router(detect.router)
 app.include_router(biometric.router)
+app.include_router(files.router)
 
 @app.get("/")
 def root():

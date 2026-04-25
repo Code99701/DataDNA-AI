@@ -94,23 +94,24 @@
 
 <body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
     <!-- TopAppBar -->
-    <nav class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl">
-        <div class="flex justify-between items-center max-w-7xl mx-auto px-8 h-20 w-full">
-            <a class="text-xl font-bold tracking-tighter text-slate-900" href="landing_frontend.html">DataDNA AI</a>
+    <header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl">
+        <nav class="flex justify-between items-center max-w-7xl mx-auto px-8 h-20 w-full">
+            <a class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white"
+                href="landing_frontend.html">DataDNA AI</a>
             <div class="hidden md:flex items-center gap-8">
-                <a class="text-slate-600 hover:text-slate-900 transition-colors font-['Inter'] font-semibold tracking-tight"
+                <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight"
                     href="landing_frontend.html">Product</a>
-                <a class="text-blue-600 font-bold font-['Inter'] tracking-tight"
+                <a class="text-blue-600 dark:text-blue-400 font-bold font-['Inter'] tracking-tight"
                     href="technology_frontend.html">Technology</a>
-                <a class="text-slate-600 hover:text-slate-900 transition-colors font-['Inter'] font-semibold tracking-tight"
+                <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight"
                     href="demo_frontend.html">Demo</a>
             </div>
-            <button
-                class="bg-primary text-on-primary px-6 py-2.5 rounded-xl font-semibold hover:opacity-80 transition-all">
-                Get Started
-            </button>
-        </div>
-    </nav>
+            <a href="dashboard_frontend.html"
+                class="bg-primary hover:opacity-80 transition-all text-on-primary px-6 py-2.5 rounded-xl font-semibold text-sm inline-block text-center">
+                View Dashboard
+            </a>
+        </nav>
+    </header>
     <main class="pt-20">
         <!-- Hero Section -->
         <section class="py-24 px-8 max-w-7xl mx-auto">

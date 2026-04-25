@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Dashboard | DataDNA AI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c1c6d5",
+                        "on-tertiary-fixed-variant": "#46464b",
+                        "surface-bright": "#f9f9fb",
+                        "secondary-container": "#e2e2e2",
+                        "inverse-surface": "#2f3132",
+                        "secondary": "#5e5e5e",
+                        "on-tertiary-container": "#e9e8ed",
+                        "on-primary-fixed": "#001b3e",
+                        "tertiary-fixed": "#e3e2e7",
+                        "tertiary-container": "#68686d",
+                        "primary-fixed": "#d7e3ff",
+                        "primary-container": "#0066cc",
+                        "on-secondary-container": "#646464",
+                        "on-primary-container": "#dfe8ff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#f0f0f2",
+                        "outline": "#727784",
+                        "tertiary-fixed-dim": "#c7c6cb",
+                        "on-secondary-fixed-variant": "#474747",
+                        "surface-container": "#eeeef0",
+                        "surface-container-highest": "#e2e2e4",
+                        "surface-tint": "#005cba",
+                        "on-surface": "#1a1c1d",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#c6c6c6",
+                        "on-secondary-fixed": "#1b1b1b",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4f5054",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#00458e",
+                        "surface-container-high": "#e8e8ea",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d9dadc",
+                        "surface-container-low": "#f3f3f5",
+                        "secondary-fixed": "#e2e2e2",
+                        "primary-fixed-dim": "#aac7ff",
+                        "on-primary": "#ffffff",
+                        "background": "#f9f9fb",
+                        "surface": "#f9f9fb",
+                        "on-background": "#1a1c1d",
+                        "primary": "#004e9f",
+                        "on-tertiary-fixed": "#1a1b1f",
+                        "on-surface-variant": "#414753",
+                        "inverse-primary": "#aac7ff",
+                        "surface-variant": "#e2e2e4",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up { animation: fadeInUp 0.4s ease-out forwards; }
+        .skeleton {
+            background: linear-gradient(90deg, #e8e8ea 25%, #f3f3f5 50%, #e8e8ea 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased flex h-screen overflow-hidden">
+
+
+    <!-- Main Content Canvas -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-surface relative">
+        <!-- TopAppBar -->
+        <header class="w-full h-20 sticky top-0 z-50 flex justify-between items-center px-10 shrink-0 bg-surface/80 backdrop-blur-xl">
+            <div class="flex items-center gap-4 flex-1">
+                <a href="landing_frontend.html" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </a>
+                <h2 class="font-display text-2xl font-bold tracking-tight text-on-surface">DataDNA Dashboard</h2>
+            </div>
+            <div class="flex-1 max-w-xl mx-8 relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span class="material-symbols-outlined text-outline">search</span>
+                </div>
+                <input id="search-input" class="w-full pl-11 pr-4 py-3 bg-surface-container-low border border-outline-variant/20 rounded-xl text-sm text-on-surface placeholder-outline focus:outline-none focus:ring-0 focus:bg-surface-container-lowest focus:border-primary/40 transition-all duration-300 shadow-sm" placeholder="Search files by owner name or filename..." type="text"/>
+            </div>
+            <div class="flex items-center gap-4 flex-1 justify-end">
+                <button onclick="loadDashboard()" class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low text-on-surface hover:bg-surface-container-highest transition-colors" title="Refresh data">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+                <div id="connection-status" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-surface-container-low text-outline">
+                    <span class="w-2 h-2 rounded-full bg-outline"></span>
+                    Connecting...
+                </div>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <div class="flex-1 overflow-y-auto p-10 pb-24">
+            <!-- Summary Bento Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <!-- Stat Card: Total Files -->
+                <div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_32px_rgba(26,28,29,0.04)] relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-32 h-32 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-all duration-500"></div>
+                    <p class="text-sm font-semibold text-on-surface-variant tracking-wide mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-sm">shield_locked</span>
+                        Total Files Secured
+                    </p>
+                    <div class="flex items-end gap-3">
+                        <h3 id="total-files" class="font-display text-5xl font-black tracking-tighter text-on-surface">
+                            <span class="skeleton inline-block w-24 h-12">&nbsp;</span>
+                        </h3>
+                    </div>
+                </div>
+                <!-- Stat Card: Recent Fingerprints -->
+                <div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_32px_rgba(26,28,29,0.04)] relative overflow-hidden group md:col-span-2">
+                    <div class="absolute -right-6 -bottom-6 w-40 h-40 bg-surface-tint/5 rounded-full blur-3xl group-hover:bg-surface-tint/10 transition-all duration-500"></div>
+                    <div class="flex justify-between items-start mb-6">
+                        <p class="text-sm font-semibold text-on-surface-variant tracking-wide flex items-center gap-2">
+                            <span class="material-symbols-outlined text-outline text-sm">fingerprint</span>
+                            Recent Fingerprints
+                        </p>
+                        <a href="demo_frontend.html" class="text-xs font-semibold text-primary hover:text-primary-container transition-colors">Upload New</a>
+                    </div>
+                    <div id="recent-fingerprints" class="flex gap-4">
+                        <!-- Skeleton placeholders -->
+                        <div class="flex-1 bg-surface-container-low p-3 rounded-lg">
+                            <div class="skeleton w-full h-14">&nbsp;</div>
+                        </div>
+                        <div class="flex-1 bg-surface-container-low p-3 rounded-lg">
+                            <div class="skeleton w-full h-14">&nbsp;</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table Section -->
+            <div class="mb-6 flex items-end justify-between">
+                <div>
+                    <h3 class="font-display text-xl font-bold tracking-tight text-on-surface">Secure Vault Registry</h3>
+                    <p class="text-sm text-on-surface-variant mt-1">Real-time cryptographic asset monitoring from your database.</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="demo_frontend.html" class="px-4 py-2 bg-gradient-to-r from-primary to-primary-container text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">add</span> Upload File
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-surface-container-lowest rounded-xl shadow-[0_12px_32px_rgba(26,28,29,0.04)] overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low/50 border-b border-surface-container-high">
+                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/4">File Name</th>
+                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/5">Owner</th>
+                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/4">Hash (SHA-256)</th>
+                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/6">Date Secured</th>
+                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/8">Storage</th>
+                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="files-table-body" class="divide-y divide-surface-container-low">
+                            <!-- Skeleton rows -->
+                            <tr><td colspan="6" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
+                            <tr><td colspan="6" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
+                            <tr><td colspan="6" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empty State (hidden by default) -->
+            <div id="empty-state" class="hidden text-center py-20">
+                <span class="material-symbols-outlined text-6xl text-outline/30 mb-4">folder_open</span>
+                <h3 class="text-xl font-bold text-on-surface mb-2">No Files Yet</h3>
+                <p class="text-on-surface-variant mb-6">Upload your first file to start building your secure vault.</p>
+                <a href="demo_frontend.html" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all">
+                    <span class="material-symbols-outlined text-sm">upload</span> Go to Upload
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let allFiles = [];
+
+        // ── Format date ──────────────────────────
+        function formatDate(dateStr) {
+            if (!dateStr) return '—';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // ── Truncate hash for display ────────────
+        function truncateHash(hash) {
+            if (!hash) return '—';
+            return hash.substring(0, 8) + '...' + hash.substring(hash.length - 6);
+        }
+
+        // ── Get file icon based on extension ─────
+        function getFileIcon(filename) {
+            if (!filename) return 'description';
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'pdf': 'picture_as_pdf',
+                'doc': 'description', 'docx': 'description',
+                'csv': 'table_chart', 'xlsx': 'table_chart', 'xls': 'table_chart',
+                'sql': 'database',
+                'env': 'vpn_key', 'key': 'vpn_key',
+                'py': 'code', 'js': 'code', 'html': 'code', 'css': 'code',
+                'jpg': 'image', 'jpeg': 'image', 'png': 'image', 'gif': 'image',
+                'zip': 'folder_zip', 'rar': 'folder_zip',
+                'mp4': 'videocam', 'avi': 'videocam',
+                'mp3': 'music_note', 'wav': 'music_note',
+            };
+            return icons[ext] || 'shield';
+        }
+
+        // ── Get owner initials ───────────────────
+        function getInitials(owner) {
+            if (!owner || owner === 'owner_default') return 'SYS';
+            return owner.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 3);
+        }
+
+        // ── Render the table ─────────────────────
+        function renderTable(files) {
+            const tbody = document.getElementById('files-table-body');
+            const emptyState = document.getElementById('empty-state');
+            const tableContainer = tbody.closest('.bg-surface-container-lowest');
+
+            if (!files || files.length === 0) {
+                tableContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            tableContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            tbody.innerHTML = files.map((file, i) => `
+                <tr class="hover:bg-surface-container-low/30 transition-colors group fade-in-up" style="animation-delay: ${i * 50}ms">
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded bg-surface-container-low flex items-center justify-center text-primary group-hover:bg-white group-hover:shadow-sm transition-all">
+                                <span class="material-symbols-outlined text-sm">${getFileIcon(file.filename)}</span>
+                            </div>
+                            <span class="text-sm font-semibold text-on-surface">${file.filename || '—'}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex items-center gap-2">
+                            <div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-on-surface-variant">${getInitials(file.owner_id)}</div>
+                            <span class="text-sm text-on-surface">${file.owner_id === 'owner_default' ? 'System Auto' : (file.owner_id || '—')}</span>
+                        </div>
+                    </td>
+                    <td class="py-4 px-6">
+                        <span class="text-xs font-mono text-outline bg-surface-container-low px-2 py-1 rounded cursor-pointer hover:bg-surface-container-high transition-colors" title="${file.hash}" onclick="navigator.clipboard.writeText('${file.hash}')">${truncateHash(file.hash)}</span>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-on-surface-variant">${formatDate(file.created_at)}</td>
+                    <td class="py-4 px-6">
+                        <span class="text-xs font-medium px-2 py-1 rounded-full ${file.storage_provider === 'gcs' ? 'bg-blue-50 text-blue-600' : 'bg-surface-container-low text-on-surface-variant'}">${file.storage_provider === 'gcs' ? '☁ Cloud' : '💾 Local'}</span>
+                    </td>
+                    <td class="py-4 px-6 text-right">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#137333]">
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Verified
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ── Render recent fingerprints ───────────
+        function renderRecentFingerprints(files) {
+            const container = document.getElementById('recent-fingerprints');
+            if (!files || files.length === 0) {
+                container.innerHTML = `
+                    <div class="flex-1 bg-surface-container-low p-4 rounded-lg text-center">
+                        <p class="text-sm text-on-surface-variant">No files uploaded yet</p>
+                        <a href="demo_frontend.html" class="text-xs font-semibold text-primary mt-1 inline-block">Upload first file →</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = files.map(file => `
+                <div class="flex-1 bg-surface-container-low p-3 rounded-lg flex items-center gap-3 fade-in-up">
+                    <div class="w-10 h-10 rounded bg-white flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined text-tertiary">${getFileIcon(file.filename)}</span>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-on-surface truncate">${file.filename || '—'}</p>
+                        <p class="text-xs text-on-surface-variant font-mono mt-0.5">${truncateHash(file.hash)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ── Update connection status ─────────────
+        function setConnectionStatus(connected) {
+            const el = document.getElementById('connection-status');
+            if (connected) {
+                el.innerHTML = '<span class="w-2 h-2 rounded-full bg-[#137333]"></span> Connected';
+                el.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#137333]';
+            } else {
+                el.innerHTML = '<span class="w-2 h-2 rounded-full bg-error"></span> Offline';
+                el.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-error-container text-on-error-container';
+            }
+        }
+
+        // ── Search / filter ──────────────────────
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) {
+                renderTable(allFiles);
+                return;
+            }
+            const filtered = allFiles.filter(f =>
+                (f.filename && f.filename.toLowerCase().includes(query)) ||
+                (f.owner_id && f.owner_id.toLowerCase().includes(query)) ||
+                (f.hash && f.hash.toLowerCase().includes(query))
+            );
+            renderTable(filtered);
+        });
+
+        // ── Load dashboard data ──────────────────
+        async function loadDashboard() {
+            try {
+                // Fetch stats
+                const statsRes = await fetch(`${API_BASE}/files/stats`);
+                const stats = await statsRes.json();
+
+                // Update total files count
+                document.getElementById('total-files').textContent = stats.total_files.toLocaleString();
+
+                // Render recent fingerprints
+                renderRecentFingerprints(stats.recent_files);
+
+                // Fetch all files for the table
+                const filesRes = await fetch(`${API_BASE}/files/`);
+                const filesData = await filesRes.json();
+                allFiles = filesData.files || [];
+
+                // Sort newest first
+                allFiles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                renderTable(allFiles);
+                setConnectionStatus(true);
+
+            } catch (err) {
+                console.error('Dashboard load error:', err);
+                setConnectionStatus(false);
+
+                document.getElementById('total-files').textContent = '—';
+                document.getElementById('recent-fingerprints').innerHTML = `
+                    <div class="flex-1 bg-red-50 border border-red-200 p-4 rounded-lg text-center">
+                        <p class="text-sm font-semibold text-red-700">Cannot connect to backend</p>
+                        <p class="text-xs text-red-500 mt-1">Make sure the server is running at ${API_BASE}</p>
+                    </div>
+                `;
+
+                const tbody = document.getElementById('files-table-body');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="py-12 text-center">
+                            <span class="material-symbols-outlined text-4xl text-error/30 mb-2">cloud_off</span>
+                            <p class="text-sm font-semibold text-on-surface-variant">Backend Unavailable</p>
+                            <p class="text-xs text-outline mt-1">Start the server with: python -m app.main</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // ── Auto-refresh every 30 seconds ────────
+        loadDashboard();
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>
