@@ -117,12 +117,55 @@
         <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight"
           href="demo_frontend.html">Demo</a>
       </div>
-      <a href="dashboard_frontend.html"
-        class="bg-primary hover:opacity-80 transition-all text-on-primary px-6 py-2.5 rounded-xl font-semibold text-sm inline-block text-center">
-        View Dashboard
-      </a>
+      <div class="flex items-center gap-3">
+        <a id="nav-dashboard-btn" href="login.html"
+          class="bg-primary hover:opacity-80 transition-all text-on-primary px-6 py-2.5 rounded-xl font-semibold text-sm inline-block text-center">
+          View Dashboard
+        </a>
+        <button id="nav-auth-btn" onclick="handleNavAuth()"
+          class="hidden px-4 py-2.5 rounded-xl font-semibold text-sm border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors">
+          Login
+        </button>
+      </div>
     </nav>
   </header>
+  <script>
+    // Auth-aware navigation
+    (function updateNav() {
+      const token = localStorage.getItem('datadna_token');
+      const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+      const dashBtn = document.getElementById('nav-dashboard-btn');
+      const authBtn = document.getElementById('nav-auth-btn');
+
+      if (token && user.user_id) {
+        // Logged in
+        if (user.role === 'admin') {
+          dashBtn.href = 'admin_dashboard.html';
+        } else if (user.dashboard_access) {
+          dashBtn.href = 'dashboard_frontend.html';
+        } else {
+          dashBtn.href = 'dashboard_frontend.html';
+        }
+        authBtn.classList.remove('hidden');
+        authBtn.textContent = 'Logout';
+      } else {
+        dashBtn.href = 'login.html';
+        authBtn.classList.remove('hidden');
+        authBtn.textContent = 'Login';
+      }
+    })();
+
+    function handleNavAuth() {
+      const token = localStorage.getItem('datadna_token');
+      if (token) {
+        localStorage.removeItem('datadna_token');
+        localStorage.removeItem('datadna_user');
+        window.location.reload();
+      } else {
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
   <main class="pt-20">
     <!-- Hero Section -->
     <section class="relative min-h-[921px] flex items-center justify-center overflow-hidden px-8">

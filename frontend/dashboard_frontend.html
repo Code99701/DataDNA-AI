@@ -123,6 +123,13 @@
                     <span class="w-2 h-2 rounded-full bg-outline"></span>
                     Connecting...
                 </div>
+                <div class="flex items-center gap-3 pl-3 border-l border-outline-variant/20">
+                    <div id="user-avatar" class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-xs font-bold text-primary">U</div>
+                    <span id="user-display-name" class="text-sm font-semibold text-on-surface hidden md:inline">User</span>
+                    <button onclick="handleLogout()" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-error-container transition-colors text-outline hover:text-error" title="Logout">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -211,11 +218,55 @@
                 </a>
             </div>
         </div>
+
+        <!-- Access Denied Overlay -->
+        <div id="access-denied-overlay" class="hidden absolute inset-0 z-50 bg-surface/95 backdrop-blur-sm flex items-center justify-center">
+            <div class="text-center max-w-sm mx-4">
+                <div class="w-20 h-20 mx-auto mb-6 bg-error-container/50 rounded-2xl flex items-center justify-center">
+                    <span class="material-symbols-outlined text-error text-4xl" style="font-variation-settings: 'FILL' 1;">lock</span>
+                </div>
+                <h2 class="text-2xl font-extrabold text-on-surface mb-2">Access Restricted</h2>
+                <p class="text-sm text-on-surface-variant mb-6">Your account doesn't have dashboard access. Contact an admin to get access.</p>
+                <div class="flex gap-3 justify-center">
+                    <a href="landing_frontend.html" class="px-6 py-2.5 rounded-xl text-white text-sm font-semibold" style="background: linear-gradient(135deg, #004e9f 0%, #0066cc 100%);">Go Home</a>
+                    <button onclick="handleLogout()" class="px-6 py-2.5 rounded-xl border border-outline-variant/30 text-sm font-semibold text-on-surface hover:bg-surface-container-low transition-colors">Sign Out</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
         const API_BASE = 'http://localhost:8000';
         let allFiles = [];
+
+        // ── Auth guard ──────────────────────────────────
+        (function authGuard() {
+            const token = localStorage.getItem('datadna_token');
+            const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+
+            if (!token || !user.user_id) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Set user info in header
+            const displayName = user.name || user.email.split('@')[0];
+            document.getElementById('user-display-name').textContent = displayName;
+            const initials = displayName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            document.getElementById('user-avatar').textContent = initials;
+
+            // Admins always have access; regular users need explicit permission
+            if (user.role !== 'admin' && !user.dashboard_access) {
+                document.getElementById('access-denied-overlay').classList.remove('hidden');
+            }
+        })();
+
+        // ── Logout ──────────────────────────────────────
+        function handleLogout() {
+            localStorage.removeItem('datadna_token');
+            localStorage.removeItem('datadna_user');
+            window.location.href = 'login.html';
+        }
 
         // ── Format date ──────────────────────────
         function formatDate(dateStr) {

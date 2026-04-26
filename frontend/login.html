@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Login | DataDNA AI</title>
+    <meta name="description" content="Sign in to DataDNA AI — Secure your digital assets with precision genomic fingerprinting."/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#004e9f",
+                        "primary-container": "#0066cc",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#dfe8ff",
+                        "primary-fixed": "#d7e3ff",
+                        "surface": "#f9f9fb",
+                        "surface-container": "#eeeef0",
+                        "surface-container-low": "#f3f3f5",
+                        "surface-container-high": "#e8e8ea",
+                        "surface-container-highest": "#e2e2e4",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1a1c1d",
+                        "on-surface-variant": "#414753",
+                        "outline": "#727784",
+                        "outline-variant": "#c1c6d5",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,78,159,0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(0,78,159,0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0,78,159,0); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(3deg); }
+        }
+
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .slide-down { animation: slideDown 0.4s ease-out forwards; }
+        .shake { animation: shake 0.5s ease-in-out; }
+        .float-animation { animation: float 6s ease-in-out infinite; }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #004e9f;
+            box-shadow: 0 0 0 3px rgba(0, 78, 159, 0.1);
+        }
+
+        .google-btn {
+            transition: all 0.3s ease;
+        }
+        .google-btn:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #004e9f 0%, #0066cc 100%);
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            box-shadow: 0 8px 24px rgba(0,78,159,0.35);
+            transform: translateY(-1px);
+        }
+        .submit-btn:active {
+            transform: translateY(0px);
+        }
+
+        .toast {
+            animation: slideDown 0.4s ease-out forwards;
+        }
+
+        .tab-active {
+            color: #004e9f;
+            border-bottom-color: #004e9f;
+        }
+        .tab-inactive {
+            color: #727784;
+            border-bottom-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex items-center justify-center relative overflow-hidden">
+
+    <!-- Background decorations -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div class="absolute -top-32 -right-32 w-[500px] h-[500px] bg-primary-fixed/30 rounded-full blur-[120px] float-animation"></div>
+        <div class="absolute -bottom-32 -left-32 w-[500px] h-[500px] bg-blue-200/30 rounded-full blur-[120px] float-animation" style="animation-delay: -3s;"></div>
+        <div class="absolute top-1/2 left-1/4 w-64 h-64 bg-primary-fixed/10 rounded-full blur-[80px]"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 max-w-sm"></div>
+
+    <!-- Main Card -->
+    <div class="relative z-10 w-full max-w-md mx-4 fade-in-up">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="landing_frontend.html" class="inline-flex items-center gap-2 text-2xl font-extrabold tracking-tighter text-on-surface hover:text-primary transition-colors">
+                <span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">fingerprint</span>
+                DataDNA AI
+            </a>
+            <p class="text-sm text-on-surface-variant mt-2">Secure Digital Asset Protection</p>
+        </div>
+
+        <!-- Card -->
+        <div class="glass-card rounded-3xl shadow-[0_24px_64px_rgba(26,28,29,0.08)] overflow-hidden">
+            <!-- Tabs -->
+            <div class="flex border-b border-outline-variant/30">
+                <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-4 text-sm font-semibold border-b-2 transition-all tab-active">
+                    Sign In
+                </button>
+                <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-4 text-sm font-semibold border-b-2 transition-all tab-inactive">
+                    Create Account
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="p-8 space-y-5 fade-in">
+                <div>
+                    <label for="login-email" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Email Address</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">mail</span>
+                        <input id="login-email" type="email" placeholder="you@example.com" class="input-field w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-sm text-on-surface placeholder-outline/60 focus:outline-none" autocomplete="email"/>
+                    </div>
+                </div>
+                <div>
+                    <label for="login-password" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">lock</span>
+                        <input id="login-password" type="password" placeholder="••••••••" class="input-field w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-sm text-on-surface placeholder-outline/60 focus:outline-none" autocomplete="current-password"/>
+                        <button type="button" onclick="togglePassword('login-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">visibility_off</span>
+                        </button>
+                    </div>
+                </div>
+                <button id="login-btn" onclick="handleLogin()" class="submit-btn w-full py-3.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2">
+                    <span id="login-btn-text">Sign In</span>
+                    <span id="login-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                </button>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="p-8 space-y-5 hidden fade-in">
+                <div>
+                    <label for="reg-name" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Full Name</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">person</span>
+                        <input id="reg-name" type="text" placeholder="John Doe" class="input-field w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-sm text-on-surface placeholder-outline/60 focus:outline-none" autocomplete="name"/>
+                    </div>
+                </div>
+                <div>
+                    <label for="reg-email" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Email Address</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">mail</span>
+                        <input id="reg-email" type="email" placeholder="you@example.com" class="input-field w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-sm text-on-surface placeholder-outline/60 focus:outline-none" autocomplete="email"/>
+                    </div>
+                </div>
+                <div>
+                    <label for="reg-password" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">lock</span>
+                        <input id="reg-password" type="password" placeholder="Min. 6 characters" class="input-field w-full pl-11 pr-12 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-sm text-on-surface placeholder-outline/60 focus:outline-none" autocomplete="new-password"/>
+                        <button type="button" onclick="togglePassword('reg-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">visibility_off</span>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label for="reg-confirm" class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-2">Confirm Password</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[18px]">lock</span>
+                        <input id="reg-confirm" type="password" placeholder="••••••••" class="input-field w-full pl-11 pr-4 py-3.5 bg-surface-container-low border border-outline-variant/30 rounded-xl text-sm text-on-surface placeholder-outline/60 focus:outline-none" autocomplete="new-password"/>
+                    </div>
+                </div>
+                <button id="register-btn" onclick="handleRegister()" class="submit-btn w-full py-3.5 rounded-xl text-white font-semibold text-sm flex items-center justify-center gap-2">
+                    <span id="register-btn-text">Create Account</span>
+                    <span id="register-spinner" class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div class="px-8 pb-2">
+                <div class="relative flex items-center">
+                    <div class="flex-grow border-t border-outline-variant/30"></div>
+                    <span class="px-4 text-xs text-outline font-medium">or continue with</span>
+                    <div class="flex-grow border-t border-outline-variant/30"></div>
+                </div>
+            </div>
+
+            <!-- Google Sign-In -->
+            <div class="px-8 pb-8 pt-4">
+                <button id="google-signin-btn" onclick="handleGoogleSignIn()" class="google-btn w-full py-3.5 bg-surface-container-lowest border border-outline-variant/30 rounded-xl text-sm font-semibold text-on-surface flex items-center justify-center gap-3">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-xs text-outline mt-6">
+            Protected by industry-grade encryption ·
+            <a href="landing_frontend.html" class="text-primary hover:underline">Back to home</a>
+        </p>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+
+        // ── Check if user is already logged in ──────────────
+        (function() {
+            const token = localStorage.getItem('datadna_token');
+            if (token) {
+                const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+                if (user.role === 'admin') {
+                    window.location.href = 'admin_dashboard.html';
+                } else {
+                    window.location.href = 'dashboard_frontend.html';
+                }
+            }
+        })();
+
+        // ── Tab switching ───────────────────────────────────
+        function switchTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                tabLogin.className = tabLogin.className.replace('tab-inactive', 'tab-active');
+                tabRegister.className = tabRegister.className.replace('tab-active', 'tab-inactive');
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                tabRegister.className = tabRegister.className.replace('tab-inactive', 'tab-active');
+                tabLogin.className = tabLogin.className.replace('tab-active', 'tab-inactive');
+            }
+        }
+
+        // ── Toggle password visibility ──────────────────────
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('.material-symbols-outlined');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility_off';
+            }
+        }
+
+        // ── Toast notifications ─────────────────────────────
+        function showToast(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const colors = {
+                error: 'bg-red-50 border-red-200 text-red-700',
+                success: 'bg-green-50 border-green-200 text-green-700',
+                info: 'bg-blue-50 border-blue-200 text-blue-700',
+            };
+            const icons = {
+                error: 'error',
+                success: 'check_circle',
+                info: 'info',
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast flex items-center gap-3 px-5 py-4 rounded-xl border ${colors[type]} shadow-lg`;
+            toast.innerHTML = `
+                <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">${icons[type]}</span>
+                <p class="text-sm font-medium flex-1">${message}</p>
+                <button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100 transition-opacity">
+                    <span class="material-symbols-outlined text-sm">close</span>
+                </button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        // ── Set loading state ───────────────────────────────
+        function setLoading(btnId, loading) {
+            const btn = document.getElementById(btnId);
+            const text = document.getElementById(btnId + '-text');
+            const spinner = document.getElementById(btnId.replace('-btn', '-spinner'));
+            btn.disabled = loading;
+            btn.style.opacity = loading ? '0.7' : '1';
+            if (spinner) spinner.classList.toggle('hidden', !loading);
+        }
+
+        // ── Handle email login ──────────────────────────────
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+
+            setLoading('login-btn', true);
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Login failed');
+                }
+
+                if (data.requires_otp) {
+                    // Store email for OTP page
+                    sessionStorage.setItem('otp_email', email);
+                    showToast('Verification code sent to your email!', 'success');
+                    setTimeout(() => window.location.href = 'otp_verify.html', 1000);
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+                document.querySelector('.glass-card').classList.add('shake');
+                setTimeout(() => document.querySelector('.glass-card').classList.remove('shake'), 500);
+            } finally {
+                setLoading('login-btn', false);
+            }
+        }
+
+        // ── Handle registration ─────────────────────────────
+        async function handleRegister() {
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+
+            if (!email || !password || !confirm) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            if (password !== confirm) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            setLoading('register-btn', true);
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Registration failed');
+                }
+
+                sessionStorage.setItem('otp_email', email);
+                showToast('Account created! Verification code sent.', 'success');
+                setTimeout(() => window.location.href = 'otp_verify.html', 1000);
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                setLoading('register-btn', false);
+            }
+        }
+
+        // ── Google Sign-In ──────────────────────────────────
+        function handleGoogleSignIn() {
+            /* global google */
+            if (typeof google === 'undefined' || !google.accounts) {
+                showToast('Google Sign-In is loading. Please try again.', 'info');
+                return;
+            }
+
+            google.accounts.id.initialize({
+                client_id: '', // Set your Google Client ID here or load from config
+                callback: handleGoogleCredential,
+                auto_select: false,
+            });
+
+            google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // Fallback: use popup
+                    google.accounts.id.renderButton(
+                        document.getElementById('google-signin-btn'),
+                        { theme: 'outline', size: 'large', width: '100%' }
+                    );
+                    showToast('Please click the Google button that appeared', 'info');
+                }
+            });
+        }
+
+        async function handleGoogleCredential(response) {
+            try {
+                const res = await fetch(`${API_BASE}/auth/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential }),
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.detail || 'Google authentication failed');
+                }
+
+                if (data.requires_otp) {
+                    // Extract email from JWT payload (base64 decode the middle part)
+                    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+                    sessionStorage.setItem('otp_email', payload.email);
+                    showToast('Verification code sent to your email!', 'success');
+                    setTimeout(() => window.location.href = 'otp_verify.html', 1000);
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Enter key handler ───────────────────────────────
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const loginForm = document.getElementById('login-form');
+                if (!loginForm.classList.contains('hidden')) {
+                    handleLogin();
+                } else {
+                    handleRegister();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
