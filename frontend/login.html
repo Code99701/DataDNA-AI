@@ -126,6 +126,12 @@
             color: #727784;
             border-bottom-color: transparent;
         }
+        
+        /* Hide default browser password reveal icons (e.g. Edge) */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface antialiased min-h-screen flex items-center justify-center relative overflow-hidden">

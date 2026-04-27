@@ -1,0 +1,16 @@
+@echo off
+echo Starting DataDNA AI Project...
+
+echo [1/2] Starting Backend Server...
+start "DataDNA Backend" cmd /c "cd backend && .\venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+echo [2/2] Starting Frontend Server...
+start "DataDNA Frontend" cmd /c "cd frontend && python -m http.server 3000"
+
+echo Waiting for servers to start...
+timeout /t 3 /nobreak > nul
+
+echo Opening browser...
+start http://localhost:3000/landing_frontend.html
+
+echo Done! Keep the two terminal windows open to keep the servers running.
