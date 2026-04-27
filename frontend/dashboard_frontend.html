@@ -116,6 +116,9 @@
                 <input id="search-input" class="w-full pl-11 pr-4 py-3 bg-surface-container-low border border-outline-variant/20 rounded-xl text-sm text-on-surface placeholder-outline focus:outline-none focus:ring-0 focus:bg-surface-container-lowest focus:border-primary/40 transition-all duration-300 shadow-sm" placeholder="Search files by owner name or filename..." type="text"/>
             </div>
             <div class="flex items-center gap-4 flex-1 justify-end">
+                <a href="admin_dashboard.html" id="admin-panel-btn" class="hidden px-4 py-2 bg-surface-container-low text-primary text-sm font-semibold rounded-lg hover:bg-surface-container-highest transition-colors items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">admin_panel_settings</span> Admin Panel
+                </a>
                 <button onclick="loadDashboard()" class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low text-on-surface hover:bg-surface-container-highest transition-colors" title="Refresh data">
                     <span class="material-symbols-outlined">refresh</span>
                 </button>
@@ -258,6 +261,15 @@
             // Admins always have access; regular users need explicit permission
             if (user.role !== 'admin' && !user.dashboard_access) {
                 document.getElementById('access-denied-overlay').classList.remove('hidden');
+            }
+            
+            // Unhide Admin Panel button if user is an admin
+            if (user.role === 'admin') {
+                const adminBtn = document.getElementById('admin-panel-btn');
+                if (adminBtn) {
+                    adminBtn.classList.remove('hidden');
+                    adminBtn.classList.add('flex');
+                }
             }
         })();
 
