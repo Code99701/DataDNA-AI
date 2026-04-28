@@ -17,7 +17,7 @@ APP_DESCRIPTION = os.getenv(
 DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # ── MongoDB ─────────────────────────────────────────────────
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://sankalpshrivastava04_db_user:PASSWORD@cluster0.xq18vuf.mongodb.net/datadna")
 MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "datadna")
 
 # ── File Storage ────────────────────────────────────────────
