@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File
 import uuid
 import os
-from app.services.fingerprint import create_datadna
+from app.services.fingerprint import generate_fingerprint
 
 router = APIRouter()
 
@@ -17,7 +17,7 @@ async def register_fingerprint(file: UploadFile = File(...)):
     with open(file_path, "wb") as f:
         f.write(contents)
 
-    fingerprint = create_datadna(file_path)
+    fingerprint = generate_fingerprint(contents)
 
     return {
         "message": "Fingerprint Registered",

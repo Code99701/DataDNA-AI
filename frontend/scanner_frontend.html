@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-    <title>Demo | DataDNA AI - Precision Genomic Fingerprinting</title>
+    <title>Scanner | DataDNA AI - Precision Genomic Fingerprinting</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet" />
@@ -59,6 +59,18 @@
             box-shadow: 0 0 10px #004e9f;
         }
     </style>
+    <script>
+        // ── Auth guard ──────────────────────────────────
+        (function authGuard() {
+            const token = localStorage.getItem('datadna_token');
+            const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+
+            if (!token || !user.user_id) {
+                window.location.href = 'login.html?redirect=scanner_frontend.html';
+                return;
+            }
+        })();
+    </script>
 </head>
 
 <body class="bg-surface text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
@@ -73,7 +85,7 @@
                 <a class="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors font-['Inter'] font-semibold tracking-tight"
                     href="technology_frontend.html">Technology</a>
                 <a class="text-blue-600 dark:text-blue-400 font-bold font-['Inter'] tracking-tight"
-                    href="demo_frontend.html">Demo</a>
+                    href="scanner_frontend.html">Scanner</a>
             </div>
             <a href="dashboard_frontend.html"
                 class="bg-primary hover:opacity-80 transition-all text-on-primary px-6 py-2.5 rounded-xl font-semibold text-sm inline-block text-center">
@@ -92,7 +104,7 @@
                 provenance and integrity with unparalleled accuracy.
             </p>
         </div>
-        <!-- Demo Interface (Asymmetric Bento Grid) -->
+        <!-- Scanner Interface (Asymmetric Bento Grid) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <!-- Upload Zone -->
             <div
@@ -185,7 +197,7 @@
                         <h4 class="text-xl font-bold mb-4 tracking-tight">Enterprise Security</h4>
                         <p class="text-on-primary-container text-sm leading-relaxed mb-6 opacity-80">
                             Your data is processed in a transient, hardware-encrypted enclave. No permanent storage is
-                            used during the demo scan.
+                            used during the scanner process.
                         </p>
                         <a class="text-sm font-bold underline underline-offset-4 hover:opacity-80 transition-opacity"
                             href="#">Read Security Whitepaper</a>
@@ -303,9 +315,14 @@
                 alert("Please select a file first.");
                 return;
             }
+            const ownerVal = ownerNameInput.value.trim();
+            if (endpoint === 'upload' && !ownerVal) {
+                alert("Please enter an owner name before uploading.");
+                return;
+            }
+
             const formData = new FormData();
             formData.append('file', selectedFile);
-            const ownerVal = ownerNameInput.value.trim();
             if (ownerVal) {
                 formData.append('owner', ownerVal);
             }

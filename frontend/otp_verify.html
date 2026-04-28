@@ -377,9 +377,13 @@
                 document.getElementById('success-overlay').classList.remove('hidden');
                 sessionStorage.removeItem('otp_email');
 
-                // Redirect based on role
+                // Redirect based on role or redirect param
                 setTimeout(() => {
-                    if (data.user.role === 'admin') {
+                    const redirectUrl = sessionStorage.getItem('redirect_after_login');
+                    if (redirectUrl) {
+                        sessionStorage.removeItem('redirect_after_login');
+                        window.location.href = redirectUrl;
+                    } else if (data.user.role === 'admin') {
                         window.location.href = 'admin_dashboard.html';
                     } else if (data.user.dashboard_access) {
                         window.location.href = 'dashboard_frontend.html';

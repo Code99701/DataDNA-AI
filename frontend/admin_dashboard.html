@@ -84,6 +84,18 @@
             backdrop-filter: blur(4px);
         }
     </style>
+    <script>
+        // ── Auth guard (Redirect) ───────────────────────────
+        (function() {
+            const token = localStorage.getItem('datadna_token');
+            const currentUser = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+            if (!token || !currentUser.user_id) {
+                window.location.href = 'login.html';
+            } else if (currentUser.role !== 'admin') {
+                window.location.href = 'access_denied.html';
+            }
+        })();
+    </script>
 </head>
 <body class="bg-surface text-on-surface antialiased flex h-screen overflow-hidden">
 
@@ -261,16 +273,9 @@
         const currentUser = JSON.parse(localStorage.getItem('datadna_user') || '{}');
         const token = localStorage.getItem('datadna_token');
 
-        // ── Auth guard ──────────────────────────────────────
+        // ── Auth guard (UI Update) ──────────────────────────
         (function() {
-            if (!token || !currentUser.user_id) {
-                window.location.href = 'login.html';
-                return;
-            }
-            if (currentUser.role !== 'admin') {
-                window.location.href = 'access_denied.html';
-                return;
-            }
+            if (!currentUser.user_id || currentUser.role !== 'admin') return;
 
             // Set admin info in header
             document.getElementById('admin-name').textContent = currentUser.name || 'Admin';

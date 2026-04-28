@@ -268,10 +268,18 @@
 
         // ── Check if user is already logged in ──────────────
         (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirect = urlParams.get('redirect');
+            if (redirect) {
+                sessionStorage.setItem('redirect_after_login', redirect);
+            }
+
             const token = localStorage.getItem('datadna_token');
             if (token) {
                 const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
-                if (user.role === 'admin') {
+                if (redirect) {
+                    window.location.href = redirect;
+                } else if (user.role === 'admin') {
                     window.location.href = 'admin_dashboard.html';
                 } else {
                     window.location.href = 'dashboard_frontend.html';
@@ -451,8 +459,11 @@
             google.accounts.id.prompt((notification) => {
                 if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                     // Fallback: use popup
+                    const btn = document.getElementById('google-signin-btn');
+                    btn.innerHTML = ''; // Clear custom button content
+                    btn.className = 'w-full flex justify-center'; // Reset classes to avoid styling conflicts
                     google.accounts.id.renderButton(
-                        document.getElementById('google-signin-btn'),
+                        btn,
                         { theme: 'outline', size: 'large', width: '100%' }
                     );
                     showToast('Please click the Google button that appeared', 'info');

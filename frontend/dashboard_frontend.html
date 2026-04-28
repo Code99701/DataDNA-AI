@@ -95,6 +95,16 @@
             100% { background-position: -200% 0; }
         }
     </style>
+    <script>
+        // ── Auth guard (Redirect) ───────────────────────
+        (function() {
+            const token = localStorage.getItem('datadna_token');
+            const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+            if (!token || !user.user_id) {
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
 </head>
 <body class="bg-surface text-on-surface antialiased flex h-screen overflow-hidden">
 
@@ -161,7 +171,7 @@
                             <span class="material-symbols-outlined text-outline text-sm">fingerprint</span>
                             Recent Fingerprints
                         </p>
-                        <a href="demo_frontend.html" class="text-xs font-semibold text-primary hover:text-primary-container transition-colors">Upload New</a>
+                        <a href="scanner_frontend.html" class="text-xs font-semibold text-primary hover:text-primary-container transition-colors">Upload New</a>
                     </div>
                     <div id="recent-fingerprints" class="flex gap-4">
                         <!-- Skeleton placeholders -->
@@ -182,7 +192,7 @@
                     <p class="text-sm text-on-surface-variant mt-1">Real-time cryptographic asset monitoring from your database.</p>
                 </div>
                 <div class="flex gap-2">
-                    <a href="demo_frontend.html" class="px-4 py-2 bg-gradient-to-r from-primary to-primary-container text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2">
+                    <a href="scanner_frontend.html" class="px-4 py-2 bg-gradient-to-r from-primary to-primary-container text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow-md transition-all flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">add</span> Upload File
                     </a>
                 </div>
@@ -216,7 +226,7 @@
                 <span class="material-symbols-outlined text-6xl text-outline/30 mb-4">folder_open</span>
                 <h3 class="text-xl font-bold text-on-surface mb-2">No Files Yet</h3>
                 <p class="text-on-surface-variant mb-6">Upload your first file to start building your secure vault.</p>
-                <a href="demo_frontend.html" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all">
+                <a href="scanner_frontend.html" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-container text-white font-semibold rounded-xl shadow-sm hover:shadow-md transition-all">
                     <span class="material-symbols-outlined text-sm">upload</span> Go to Upload
                 </a>
             </div>
@@ -242,15 +252,10 @@
         const API_BASE = 'http://localhost:8000';
         let allFiles = [];
 
-        // ── Auth guard ──────────────────────────────────
+        // ── Auth guard (UI Update) ──────────────────────
         (function authGuard() {
-            const token = localStorage.getItem('datadna_token');
             const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
-
-            if (!token || !user.user_id) {
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!user.user_id) return;
 
             // Set user info in header
             const displayName = user.name || user.email.split('@')[0];
@@ -372,7 +377,7 @@
                 container.innerHTML = `
                     <div class="flex-1 bg-surface-container-low p-4 rounded-lg text-center">
                         <p class="text-sm text-on-surface-variant">No files uploaded yet</p>
-                        <a href="demo_frontend.html" class="text-xs font-semibold text-primary mt-1 inline-block">Upload first file →</a>
+                        <a href="scanner_frontend.html" class="text-xs font-semibold text-primary mt-1 inline-block">Upload first file →</a>
                     </div>
                 `;
                 return;
