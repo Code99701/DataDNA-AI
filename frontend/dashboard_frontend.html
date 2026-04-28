@@ -207,15 +207,14 @@
                                 <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/5">Owner</th>
                                 <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/4">Hash (SHA-256)</th>
                                 <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/6">Date Secured</th>
-                                <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider w-1/8">Storage</th>
                                 <th class="py-4 px-6 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Status</th>
                             </tr>
                         </thead>
                         <tbody id="files-table-body" class="divide-y divide-surface-container-low">
                             <!-- Skeleton rows -->
-                            <tr><td colspan="6" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
-                            <tr><td colspan="6" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
-                            <tr><td colspan="6" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
+                            <tr><td colspan="5" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
+                            <tr><td colspan="5" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
+                            <tr><td colspan="5" class="py-6 px-6"><div class="skeleton w-full h-8">&nbsp;</div></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -289,7 +288,7 @@
         function formatDate(dateStr) {
             if (!dateStr) return '—';
             const d = new Date(dateStr);
-            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
 
         // ── Truncate hash for display ────────────
@@ -350,17 +349,14 @@
                     </td>
                     <td class="py-4 px-6">
                         <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-on-surface-variant">${getInitials(file.owner_id)}</div>
-                            <span class="text-sm text-on-surface">${file.owner_id === 'owner_default' ? 'System Auto' : (file.owner_id || '—')}</span>
+                            <div class="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center text-xs font-bold text-on-surface-variant">${getInitials(file.owner_name || file.owner_id)}</div>
+                            <span class="text-sm text-on-surface">${file.owner_name || (file.owner_id === 'owner_default' ? 'System Auto' : (file.owner_id || '—'))}</span>
                         </div>
                     </td>
                     <td class="py-4 px-6">
-                        <span class="text-xs font-mono text-outline bg-surface-container-low px-2 py-1 rounded cursor-pointer hover:bg-surface-container-high transition-colors" title="${file.hash}" onclick="navigator.clipboard.writeText('${file.hash}')">${truncateHash(file.hash)}</span>
+                        <span class="text-xs font-mono text-outline bg-surface-container-low px-2 py-1 rounded cursor-pointer hover:bg-surface-container-high transition-colors" title="${file.file_hash}" onclick="navigator.clipboard.writeText('${file.file_hash}')">${truncateHash(file.file_hash)}</span>
                     </td>
-                    <td class="py-4 px-6 text-sm text-on-surface-variant">${formatDate(file.created_at)}</td>
-                    <td class="py-4 px-6">
-                        <span class="text-xs font-medium px-2 py-1 rounded-full ${file.storage_provider === 'gcs' ? 'bg-blue-50 text-blue-600' : 'bg-surface-container-low text-on-surface-variant'}">${file.storage_provider === 'gcs' ? '☁ Cloud' : '💾 Local'}</span>
-                    </td>
+                    <td class="py-4 px-6 text-sm text-on-surface-variant">${formatDate(file.registered_at)}</td>
                     <td class="py-4 px-6 text-right">
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#e6f4ea] text-[#137333]">
                             <span class="w-1.5 h-1.5 rounded-full bg-[#137333]"></span> Verified
@@ -390,7 +386,7 @@
                     </div>
                     <div class="min-w-0">
                         <p class="text-sm font-semibold text-on-surface truncate">${file.filename || '—'}</p>
-                        <p class="text-xs text-on-surface-variant font-mono mt-0.5">${truncateHash(file.hash)}</p>
+                        <p class="text-xs text-on-surface-variant mt-0.5">${file.owner_name || '—'}</p>
                     </div>
                 </div>
             `).join('');
@@ -417,32 +413,33 @@
             }
             const filtered = allFiles.filter(f =>
                 (f.filename && f.filename.toLowerCase().includes(query)) ||
-                (f.owner_id && f.owner_id.toLowerCase().includes(query)) ||
-                (f.hash && f.hash.toLowerCase().includes(query))
+                (f.owner_name && f.owner_name.toLowerCase().includes(query)) ||
+                (f.owner_id && f.owner_id.toLowerCase().includes(query))
             );
             renderTable(filtered);
         });
 
         // ── Load dashboard data ──────────────────
         async function loadDashboard() {
+            const token = localStorage.getItem('datadna_token');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
             try {
-                // Fetch stats
-                const statsRes = await fetch(`${API_BASE}/files/stats`);
-                const stats = await statsRes.json();
+                // Fetch all documents
+                const filesRes = await fetch(`${API_BASE}/ownership/documents`, { headers });
+                const filesData = await filesRes.json();
+                
+                allFiles = filesData.documents || [];
 
                 // Update total files count
-                document.getElementById('total-files').textContent = stats.total_files.toLocaleString();
+                document.getElementById('total-files').textContent = filesData.total.toLocaleString();
 
-                // Render recent fingerprints
-                renderRecentFingerprints(stats.recent_files);
-
-                // Fetch all files for the table
-                const filesRes = await fetch(`${API_BASE}/files/`);
-                const filesData = await filesRes.json();
-                allFiles = filesData.files || [];
-
-                // Sort newest first
-                allFiles.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                // Render recent fingerprints (top 2)
+                const recentFiles = allFiles.slice(0, 2);
+                renderRecentFingerprints(recentFiles);
 
                 renderTable(allFiles);
                 setConnectionStatus(true);
@@ -462,7 +459,7 @@
                 const tbody = document.getElementById('files-table-body');
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="py-12 text-center">
+                        <td colspan="5" class="py-12 text-center">
                             <span class="material-symbols-outlined text-4xl text-error/30 mb-2">cloud_off</span>
                             <p class="text-sm font-semibold text-on-surface-variant">Backend Unavailable</p>
                             <p class="text-xs text-outline mt-1">Start the server with: python -m app.main</p>

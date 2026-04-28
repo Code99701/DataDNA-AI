@@ -1,4 +1,13 @@
-import logging
+import os
+
+BASE_DIR = r"d:\google solutions\Google-Solutions-2026-Project\backend_final\app"
+MAIN_PY = os.path.join(BASE_DIR, "main.py")
+
+def write_file(path, content):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+
+content = """import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -50,9 +59,13 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    """Health check endpoint."""
+    \"\"\"Health check endpoint.\"\"\"
     return {
         "service": "DataDNA AI",
         "status": "running",
         "version": "3.0.0",
     }
+"""
+
+write_file(MAIN_PY, content)
+print("Updated main.py")

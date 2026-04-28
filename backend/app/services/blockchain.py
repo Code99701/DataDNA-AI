@@ -1,124 +1,227 @@
 """
-Simple blockchain (hash-chain) service.
+Local blockchain for immutable file ownership tracking.
 
-Each uploaded file's fingerprint is recorded as a block in a chain.
-The chain is persisted to a JSON file for durability across restarts.
+Each block records an (owner_name, file_hash) pair. Blocks are linked
+via SHA-256 hashes to form a tamper-proof chain. The chain is persisted
+to a JSON file so it survives server restarts.
+
+Usage:
+    from app.services.blockchain import blockchain
+    block = blockchain.add_block("Alice", "abc123...")
+    valid = blockchain.verify_chain()
 """
-
 import hashlib
 import json
-import os
 import logging
+import os
+import threading
 from datetime import datetime, timezone
-from typing import Optional
-
-from app.core.config import BLOCKCHAIN_FILE
+from typing import Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
+BLOCKCHAIN_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    "storage", "blockchain.json",
+)
+
 
 class Block:
-    """A single block in the hash chain."""
+    """A single block in the ownership blockchain."""
 
     def __init__(
         self,
         index: int,
         timestamp: str,
+        owner_name: str,
         file_hash: str,
         previous_hash: str,
     ):
         self.index = index
         self.timestamp = timestamp
+        self.owner_name = owner_name
         self.file_hash = file_hash
         self.previous_hash = previous_hash
-        self.current_hash = self._compute_hash()
+        self.block_hash = self._calculate_hash()
 
-    def _compute_hash(self) -> str:
-        block_string = f"{self.index}{self.timestamp}{self.file_hash}{self.previous_hash}"
-        return hashlib.sha256(block_string.encode()).hexdigest()
+    def _calculate_hash(self) -> str:
+        """SHA-256 hash of all block fields (excluding block_hash itself)."""
+        payload = (
+            f"{self.index}"
+            f"{self.timestamp}"
+            f"{self.owner_name}"
+            f"{self.file_hash}"
+            f"{self.previous_hash}"
+        )
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     def to_dict(self) -> dict:
+        """Serialize block to a dictionary."""
         return {
             "index": self.index,
             "timestamp": self.timestamp,
+            "owner_name": self.owner_name,
             "file_hash": self.file_hash,
             "previous_hash": self.previous_hash,
-            "current_hash": self.current_hash,
+            "block_hash": self.block_hash,
         }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "Block":
+        """Deserialize a block from a dictionary."""
+        block = cls(
+            index=data["index"],
+            timestamp=data["timestamp"],
+            owner_name=data["owner_name"],
+            file_hash=data["file_hash"],
+            previous_hash=data["previous_hash"],
+        )
+        block.block_hash = data["block_hash"]
+        return block
 
 
 class Blockchain:
-    """In-memory hash-chain backed by a JSON file on disk."""
+    """
+    Thread-safe local blockchain for file ownership records.
 
-    def __init__(self, filepath: str = BLOCKCHAIN_FILE):
-        self.filepath = filepath
-        self.chain: list[Block] = []
-        self._load_or_create()
+    The chain is persisted to a JSON file and loaded on startup.
+    A genesis block is created automatically if no chain file exists.
+    """
 
-    # ── Public API ──────────────────────────────────────────
+    def __init__(self):
+        self._lock = threading.Lock()
+        self.chain: List[Block] = []
+        self._load_chain()
 
-    def add_block(self, file_hash: str) -> Block:
-        """Append a new block for the given file hash and persist."""
-        previous_hash = self.chain[-1].current_hash if self.chain else "0"
-        block = Block(
-            index=len(self.chain),
+    # ── Chain management ─────────────────────────────
+
+    def _create_genesis_block(self) -> Block:
+        """Create the first block in the chain."""
+        return Block(
+            index=0,
             timestamp=datetime.now(timezone.utc).isoformat(),
-            file_hash=file_hash,
-            previous_hash=previous_hash,
+            owner_name="GENESIS",
+            file_hash="0" * 64,
+            previous_hash="0" * 64,
         )
-        self.chain.append(block)
-        self._save()
-        logger.info("Blockchain block #%d added for hash %s", block.index, file_hash)
-        return block
 
-    def verify_chain(self) -> bool:
-        """Validate the integrity of the entire chain."""
-        for i in range(1, len(self.chain)):
-            current = self.chain[i]
-            previous = self.chain[i - 1]
-            if current.previous_hash != previous.current_hash:
-                logger.warning("Chain broken at block #%d", i)
-                return False
-            if current.current_hash != current._compute_hash():
-                logger.warning("Block #%d hash mismatch", i)
-                return False
-        return True
+    def add_block(self, owner_name: str, file_hash: str) -> Block:
+        """
+        Add a new ownership record to the blockchain.
 
-    def get_chain(self) -> list[dict]:
+        Args:
+            owner_name: Name of the file owner.
+            file_hash: SHA-256 hash of the file.
+
+        Returns:
+            The newly created Block.
+        """
+        with self._lock:
+            previous_block = self.chain[-1]
+            new_block = Block(
+                index=len(self.chain),
+                timestamp=datetime.now(timezone.utc).isoformat(),
+                owner_name=owner_name,
+                file_hash=file_hash,
+                previous_hash=previous_block.block_hash,
+            )
+            self.chain.append(new_block)
+            self._save_chain()
+            logger.info(
+                f"Block #{new_block.index} added — "
+                f"owner={owner_name}, file_hash={file_hash[:16]}..."
+            )
+            return new_block
+
+    def verify_chain(self) -> Dict:
+        """
+        Verify the integrity of the entire blockchain.
+
+        Returns:
+            Dict with 'valid' (bool), 'total_blocks', and 'errors' list.
+        """
+        with self._lock:
+            errors = []
+
+            for i in range(1, len(self.chain)):
+                current = self.chain[i]
+                previous = self.chain[i - 1]
+
+                # Check hash linkage
+                if current.previous_hash != previous.block_hash:
+                    errors.append(
+                        f"Block #{i}: previous_hash mismatch "
+                        f"(expected {previous.block_hash[:16]}..., "
+                        f"got {current.previous_hash[:16]}...)"
+                    )
+
+                # Check block's own hash integrity
+                recalculated = current._calculate_hash()
+                if current.block_hash != recalculated:
+                    errors.append(
+                        f"Block #{i}: block_hash corrupted "
+                        f"(expected {recalculated[:16]}..., "
+                        f"got {current.block_hash[:16]}...)"
+                    )
+
+            return {
+                "valid": len(errors) == 0,
+                "total_blocks": len(self.chain),
+                "errors": errors,
+            }
+
+    def get_block_by_file_hash(self, file_hash: str) -> Optional[Block]:
+        """Look up a block by the file hash it records."""
+        with self._lock:
+            for block in reversed(self.chain):
+                if block.file_hash == file_hash:
+                    return block
+            return None
+
+    def get_blocks_by_owner(self, owner_name: str) -> List[Block]:
+        """Get all blocks belonging to a specific owner."""
+        with self._lock:
+            return [
+                b for b in self.chain
+                if b.owner_name.lower() == owner_name.lower()
+                and b.index > 0  # skip genesis
+            ]
+
+    def get_chain(self) -> List[dict]:
         """Return the full chain as a list of dicts."""
-        return [b.to_dict() for b in self.chain]
+        with self._lock:
+            return [block.to_dict() for block in self.chain]
 
-    def find_by_hash(self, file_hash: str) -> Optional[dict]:
-        """Search the chain for a block containing the given file hash."""
-        for block in self.chain:
-            if block.file_hash == file_hash:
-                return block.to_dict()
-        return None
+    # ── Persistence ──────────────────────────────────
 
-    # ── Persistence ─────────────────────────────────────────
+    def _save_chain(self):
+        """Persist the chain to a JSON file."""
+        os.makedirs(os.path.dirname(BLOCKCHAIN_FILE), exist_ok=True)
+        data = [block.to_dict() for block in self.chain]
+        with open(BLOCKCHAIN_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
-    def _save(self):
-        with open(self.filepath, "w") as f:
-            json.dump([b.to_dict() for b in self.chain], f, indent=2)
-
-    def _load_or_create(self):
-        if os.path.exists(self.filepath):
-            with open(self.filepath, "r") as f:
-                data = json.load(f)
-            for item in data:
-                block = Block(
-                    index=item["index"],
-                    timestamp=item["timestamp"],
-                    file_hash=item["file_hash"],
-                    previous_hash=item["previous_hash"],
+    def _load_chain(self):
+        """Load the chain from the JSON file, or create genesis."""
+        if os.path.exists(BLOCKCHAIN_FILE):
+            try:
+                with open(BLOCKCHAIN_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                self.chain = [Block.from_dict(d) for d in data]
+                logger.info(
+                    f"Blockchain loaded — {len(self.chain)} blocks"
                 )
-                # Restore the saved hash (it should match)
-                block.current_hash = item["current_hash"]
-                self.chain.append(block)
-            logger.info("Loaded blockchain with %d blocks from %s", len(self.chain), self.filepath)
-        else:
-            logger.info("No existing blockchain found — starting fresh.")
+                return
+            except (json.JSONDecodeError, KeyError) as e:
+                logger.warning(
+                    f"Corrupted blockchain file, reinitializing: {e}"
+                )
+
+        # Create fresh chain with genesis block
+        self.chain = [self._create_genesis_block()]
+        self._save_chain()
+        logger.info("Blockchain initialized with genesis block")
 
 
-# Module-level singleton
+# ── Module-level singleton ───────────────────────────
 blockchain = Blockchain()

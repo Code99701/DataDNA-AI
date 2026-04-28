@@ -107,8 +107,8 @@
   <!-- TopAppBar -->
   <header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl">
     <nav class="flex justify-between items-center max-w-7xl mx-auto px-8 h-20 w-full">
-      <a class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white"
-        href="landing_frontend.html">DataDNA AI</a>
+      <a class="text-xl font-bold tracking-tighter text-slate-900 dark:text-white" href="landing_frontend.html">DataDNA
+        AI</a>
       <div class="hidden md:flex items-center gap-8">
         <a class="text-blue-600 dark:text-blue-400 font-bold font-['Inter'] tracking-tight"
           href="landing_frontend.html">Product</a>
@@ -130,30 +130,30 @@
     </nav>
   </header>
   <script>
-    // Auth-aware navigation
-    (function updateNav() {
-      const token = localStorage.getItem('datadna_token');
-      const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
-      const dashBtn = document.getElementById('nav-dashboard-btn');
-      const authBtn = document.getElementById('nav-auth-btn');
+      // Auth-aware navigation
+      (function updateNav() {
+        const token = localStorage.getItem('datadna_token');
+        const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+        const dashBtn = document.getElementById('nav-dashboard-btn');
+        const authBtn = document.getElementById('nav-auth-btn');
 
-      if (token && user.user_id) {
-        // Logged in
-        if (user.role === 'admin') {
-          dashBtn.href = 'admin_dashboard.html';
-        } else if (user.dashboard_access) {
-          dashBtn.href = 'dashboard_frontend.html';
+        if (token && user.user_id) {
+          // Logged in
+          if (user.role === 'admin') {
+            dashBtn.href = 'admin_dashboard.html';
+          } else if (user.dashboard_access) {
+            dashBtn.href = 'dashboard_frontend.html';
+          } else {
+            dashBtn.href = 'dashboard_frontend.html';
+          }
+          authBtn.classList.remove('hidden');
+          authBtn.textContent = 'Logout';
         } else {
-          dashBtn.href = 'dashboard_frontend.html';
+          dashBtn.href = 'login.html';
+          authBtn.classList.remove('hidden');
+          authBtn.textContent = 'Login';
         }
-        authBtn.classList.remove('hidden');
-        authBtn.textContent = 'Logout';
-      } else {
-        dashBtn.href = 'login.html';
-        authBtn.classList.remove('hidden');
-        authBtn.textContent = 'Login';
-      }
-    })();
+      })();
 
     function handleNavAuth() {
       const token = localStorage.getItem('datadna_token');
@@ -201,23 +201,73 @@
             steganographic AI.</p>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-          <!-- Card 1 -->
+          <!-- Card 1 — Blockchain Ownership Ledger -->
           <div
             class="md:col-span-8 bg-surface-container-lowest rounded-[2rem] p-10 flex flex-col md:flex-row items-start overflow-hidden relative group min-h-[450px]">
             <div class="relative z-10 w-full md:w-[55%] md:pr-8">
-              <span class="material-symbols-outlined text-primary text-4xl mb-6">fingerprint</span>
-              <h3 class="text-3xl font-bold mb-4">Invisible Fingerprinting</h3>
-              <p class="text-on-surface-variant max-w-md text-lg">Inject imperceptible, mathematically unique signatures
-                into any file format without altering data integrity or performance.</p>
+              <span class="material-symbols-outlined text-primary text-4xl mb-6">link</span>
+              <h3 class="text-3xl font-bold mb-4">Blockchain Ownership Ledger</h3>
+              <p class="text-on-surface-variant max-w-md text-lg mb-8">
+                Every registered document is sealed into an immutable SHA-256 linked chain. Each block records the
+                owner's name, the file's cryptographic hash, a timestamp, and a pointer to the previous block —
+                making retroactive tampering mathematically impossible.
+              </p>
+              <!-- Mini block-chain visual -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Genesis Block -->
+                <div class="flex flex-col items-center">
+                  <div class="bg-primary/10 border border-primary/20 rounded-xl px-3 py-2 text-center min-w-[90px]">
+                    <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Genesis</p>
+                    <p class="text-[10px] font-mono text-on-surface-variant">0000…0000</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-primary/40 text-lg">arrow_forward</span>
+                <!-- Block 1 -->
+                <div class="flex flex-col items-center">
+                  <div class="bg-primary/10 border border-primary/30 rounded-xl px-3 py-2 text-center min-w-[90px]">
+                    <p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-1">Block #1</p>
+                    <p class="text-[10px] font-mono text-on-surface-variant truncate">a3f2…c91b</p>
+                    <p class="text-[10px] text-on-surface-variant mt-0.5">Alice</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-primary/40 text-lg">arrow_forward</span>
+                <!-- Block 2 -->
+                <div class="flex flex-col items-center">
+                  <div class="bg-primary border border-primary rounded-xl px-3 py-2 text-center min-w-[90px] shadow-lg shadow-primary/20">
+                    <p class="text-[10px] font-bold text-on-primary uppercase tracking-widest mb-1">Block #N</p>
+                    <p class="text-[10px] font-mono text-on-primary/80 truncate">7e91…44dc</p>
+                    <p class="text-[10px] text-on-primary/80 mt-0.5">You</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-primary/40 text-lg">lock</span>
+              </div>
+              <!-- Stats row -->
+              <div class="flex gap-6 mt-8">
+                <div>
+                  <p class="text-2xl font-extrabold text-primary">SHA-256</p>
+                  <p class="text-xs text-on-surface-variant">Hash Algorithm</p>
+                </div>
+                <div class="w-px bg-outline-variant"></div>
+                <div>
+                  <p class="text-2xl font-extrabold text-primary">100%</p>
+                  <p class="text-xs text-on-surface-variant">Tamper-Proof</p>
+                </div>
+                <div class="w-px bg-outline-variant"></div>
+                <div>
+                  <p class="text-2xl font-extrabold text-primary">∞</p>
+                  <p class="text-xs text-on-surface-variant">Persistent Records</p>
+                </div>
+              </div>
             </div>
+            <!-- Right image panel -->
             <div
               class="relative w-full md:w-[45%] flex-shrink-0 h-64 md:h-full md:absolute md:right-0 md:top-0 md:bottom-0 overflow-hidden rounded-2xl md:rounded-none">
               <div
                 class="absolute inset-0 bg-gradient-to-r from-white/80 via-white/30 to-transparent z-10 hidden md:block">
               </div>
               <img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
-                data-alt="close-up of digital microscopic data structures glowing with neon blue light in a clean studio setting"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfyBLLNJG8fCqtb4V9N-Uz35Ql_HAKwM4PvL384tcXY0cpJpNWQgVH3Ir1eSgfze7hY9EMA_7giWSJB2-QbEpU-0TH8uKyNG4HNWkvKLLZwcwGKoFVkj0sJPgqjSjAAJ9voLFJBwN_rUuxsnPLkKvnAXmaEvHS1cXHnZEiMaDOyZAXv7WiZumWZY2IGIKRwERZyIb4_Lg2Al6Hqvp1YoXomSBiXvIQGLZg0TPBTSSVWAiFREVNW86ZnztvHNsZH6be8zlNxC_plL-O" />
+                data-alt="glowing blue blockchain network nodes interconnected with cryptographic hash chains in a dark futuristic space"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt_EJqpOIaPPStPt3kJ_n0oRaLst7c5gz1PHc7lm_zsKQO0kEHBjUIqxY4siU-FmfVHPO1VMjFNnalOAoMbRVbAp0Y8A4fcMb1BK9iQ71sOk9B_jwWCvZYulCecsZf3EBxDAkTsScLKiZ4ho2aQ7UQlti1QL0gwe8-xPaY7CXe-TBxePfNumdEiDPE1FvYY_G1IVv5vrFSPWUmQ0ZObm_cSjSuXaJQ27xkKJ80ixxBVkXtYRm8FFoURFu6mjYEyMCE62wnWDMr5RMR" />
             </div>
           </div>
           <!-- Card 2 -->

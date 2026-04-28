@@ -382,12 +382,17 @@
                     throw new Error(data.detail || 'Login failed');
                 }
 
-                if (data.requires_otp) {
-                    // Store email for OTP page
-                    sessionStorage.setItem('otp_email', email);
-                    showToast('Verification code sent to your email!', 'success');
-                    setTimeout(() => window.location.href = 'otp_verify.html', 1000);
-                }
+                localStorage.setItem('datadna_token', data.token);
+                localStorage.setItem('datadna_user', JSON.stringify(data.user));
+
+                showToast('Login successful!', 'success');
+                setTimeout(() => {
+                    if (data.user.role === 'admin') {
+                        window.location.href = 'admin_dashboard.html';
+                    } else {
+                        window.location.href = 'dashboard_frontend.html';
+                    }
+                }, 800);
             } catch (err) {
                 showToast(err.message, 'error');
                 document.querySelector('.glass-card').classList.add('shake');
@@ -432,9 +437,8 @@
                     throw new Error(data.detail || 'Registration failed');
                 }
 
-                sessionStorage.setItem('otp_email', email);
-                showToast('Account created! Verification code sent.', 'success');
-                setTimeout(() => window.location.href = 'otp_verify.html', 1000);
+                showToast('Account created successfully! Please log in.', 'success');
+                setTimeout(() => window.location.href = 'login.html', 1000);
             } catch (err) {
                 showToast(err.message, 'error');
             } finally {
@@ -485,13 +489,17 @@
                     throw new Error(data.detail || 'Google authentication failed');
                 }
 
-                if (data.requires_otp) {
-                    // Extract email from JWT payload (base64 decode the middle part)
-                    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-                    sessionStorage.setItem('otp_email', payload.email);
-                    showToast('Verification code sent to your email!', 'success');
-                    setTimeout(() => window.location.href = 'otp_verify.html', 1000);
-                }
+                localStorage.setItem('datadna_token', data.token);
+                localStorage.setItem('datadna_user', JSON.stringify(data.user));
+
+                showToast('Login successful!', 'success');
+                setTimeout(() => {
+                    if (data.user.role === 'admin') {
+                        window.location.href = 'admin_dashboard.html';
+                    } else {
+                        window.location.href = 'dashboard_frontend.html';
+                    }
+                }, 800);
             } catch (err) {
                 showToast(err.message, 'error');
             }

@@ -7,7 +7,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.services.auth_service import decode_jwt
-from app.db.database import get_db
+from app.database.database import get_db
 
 logger = logging.getLogger(__name__)
 

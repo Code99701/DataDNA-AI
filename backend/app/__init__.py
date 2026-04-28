@@ -1,1 +1,1 @@
-# DataDNA AI - File Ownership Fingerprinting System
+"""App package"""

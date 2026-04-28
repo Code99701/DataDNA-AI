@@ -1,0 +1,15 @@
+This is page 1 of a test document for the DataDNA AI ownership tracking system.
+
+The quick brown fox jumps over the lazy dog. This sentence contains every letter of the English alphabet and is commonly used as a typing test. In the context of document ownership verification, we need substantial text content to generate meaningful embeddings.
+
+Machine learning has revolutionized how we process and understand text. Natural language processing techniques enable computers to analyze, understand, and generate human language. These capabilities form the backbone of modern AI systems.
+
+Some new text added here to change the exact hash of the file and the page. But the rest of the text is mostly similar to the original text. Let's see if the deep learning model can figure this out.
+
+Deep learning models, particularly transformer-based architectures, have shown remarkable capabilities in understanding semantic relationships between texts. The attention mechanism allows these models to capture long-range dependencies in text.
+
+Document fingerprinting is an important application of these technologies. By generating unique embeddings for each page of a document, we can detect both exact copies and paraphrased versions of original content.
+
+Blockchain technology provides an immutable ledger for recording ownership information. When combined with AI-based content analysis, it creates a robust system for intellectual property protection.
+
+The future of digital content ownership lies in the intersection of artificial intelligence and distributed ledger technologies. This combination ensures both content authenticity and ownership provenance.

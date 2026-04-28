@@ -1,5 +1,5 @@
 """
-Authentication API routes — register, login, Google OAuth, OTP verification.
+Authentication API routes — register, login, and Google OAuth.
 """
 
 import uuid
@@ -10,13 +10,11 @@ from fastapi import APIRouter, HTTPException, Depends, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.db.database import get_db
-from app.db.auth_models import (
+from app.database.database import get_db
+from app.models.auth_models import (
     RegisterRequest,
     LoginRequest,
     GoogleAuthRequest,
-    OTPVerifyRequest,
-    ResendOTPRequest,
     AuthResponse,
     UserProfile,
     AuthProvider,
@@ -26,10 +24,7 @@ from app.services.auth_service import (
     hash_password,
     verify_password,
     create_jwt,
-    generate_otp,
-    verify_otp,
     verify_google_token,
-    send_otp_email,
 )
 from app.api.dependencies import get_current_user
 
@@ -54,7 +49,6 @@ async def register(request: Request, body: RegisterRequest):
 
     # Create user document
     user_id = str(uuid.uuid4())
-    otp, otp_expiry = generate_otp()
 
     user_doc = {
         "user_id": user_id,
@@ -65,9 +59,7 @@ async def register(request: Request, body: RegisterRequest):
         "password_hash": hash_password(body.password),
         "role": UserRole.USER.value,
         "dashboard_access": False,
-        "is_2fa_verified": False,
-        "otp_code": otp,
-        "otp_expiry": otp_expiry,
+        "is_2fa_verified": True,
         "trusted_devices": [],
         "created_at": datetime.now(timezone.utc),
         "last_login": None,
@@ -75,13 +67,10 @@ async def register(request: Request, body: RegisterRequest):
 
     await db.users.insert_one(user_doc)
 
-    # Send OTP email
-    await send_otp_email(body.email.lower(), otp, user_doc["name"])
-
     logger.info("New user registered: %s", body.email)
     return AuthResponse(
-        message="Account created! Check your email for the verification code.",
-        requires_otp=True,
+        message="Account created successfully. You can now log in.",
+        requires_otp=False,
     )
 
 
@@ -89,7 +78,7 @@ async def register(request: Request, body: RegisterRequest):
 @router.post("/login", response_model=AuthResponse)
 @limiter.limit("5/minute")
 async def login(request: Request, body: LoginRequest):
-    """Login with email + password → triggers 2FA OTP."""
+    """Login with email + password."""
     db = get_db()
 
     user = await db.users.find_one({"email": body.email.lower()})
@@ -105,19 +94,32 @@ async def login(request: Request, body: LoginRequest):
     if not verify_password(body.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    # Generate and send OTP
-    otp, otp_expiry = generate_otp()
-    await db.users.update_one(
-        {"email": body.email.lower()},
-        {"$set": {"otp_code": otp, "otp_expiry": otp_expiry}},
+    token = create_jwt(
+        user_id=user["user_id"],
+        email=user["email"],
+        role=user["role"],
+        is_2fa_verified=True,
+        dashboard_access=user.get("dashboard_access", False),
     )
 
-    await send_otp_email(body.email.lower(), otp, user.get("name", ""))
+    await db.users.update_one(
+        {"email": body.email.lower()},
+        {"$set": {"last_login": datetime.now(timezone.utc)}},
+    )
 
-    logger.info("Login OTP sent to: %s", body.email)
+    logger.info("User logged in: %s", body.email)
     return AuthResponse(
-        message="Verification code sent to your email.",
-        requires_otp=True,
+        message="Login successful.",
+        token=token,
+        user={
+            "user_id": user["user_id"],
+            "email": user["email"],
+            "name": user.get("name", ""),
+            "picture": user.get("picture", ""),
+            "role": user["role"],
+            "dashboard_access": user.get("dashboard_access", False),
+        },
+        requires_otp=False,
     )
 
 
@@ -125,7 +127,7 @@ async def login(request: Request, body: LoginRequest):
 @router.post("/google", response_model=AuthResponse)
 @limiter.limit("10/minute")
 async def google_auth(request: Request, body: GoogleAuthRequest):
-    """Authenticate via Google OAuth → auto-create user → triggers 2FA OTP."""
+    """Authenticate via Google OAuth and return a JWT token."""
     db = get_db()
 
     # Verify Google token
@@ -141,7 +143,6 @@ async def google_auth(request: Request, body: GoogleAuthRequest):
     if not user:
         # Auto-create user on first Google login
         user_id = str(uuid.uuid4())
-        otp, otp_expiry = generate_otp()
 
         user_doc = {
             "user_id": user_id,
@@ -152,9 +153,7 @@ async def google_auth(request: Request, body: GoogleAuthRequest):
             "password_hash": "",
             "role": UserRole.USER.value,
             "dashboard_access": False,
-            "is_2fa_verified": False,
-            "otp_code": otp,
-            "otp_expiry": otp_expiry,
+            "is_2fa_verified": True,
             "trusted_devices": [],
             "created_at": datetime.now(timezone.utc),
             "last_login": None,
@@ -164,58 +163,16 @@ async def google_auth(request: Request, body: GoogleAuthRequest):
         user = user_doc
         logger.info("New Google user created: %s", email)
     else:
-        # Existing user — generate new OTP
-        otp, otp_expiry = generate_otp()
         await db.users.update_one(
             {"email": email},
             {
                 "$set": {
-                    "otp_code": otp,
-                    "otp_expiry": otp_expiry,
                     "picture": google_user.get("picture", user.get("picture", "")),
                     "name": google_user.get("name", user.get("name", "")),
                 }
             },
         )
 
-    # Send OTP
-    await send_otp_email(email, otp, user.get("name", ""))
-
-    return AuthResponse(
-        message="Verification code sent to your email.",
-        requires_otp=True,
-    )
-
-
-# ── POST /auth/verify-otp ───────────────────────────────────
-@router.post("/verify-otp", response_model=AuthResponse)
-@limiter.limit("10/minute")
-async def verify_otp_endpoint(request: Request, body: OTPVerifyRequest):
-    """Verify OTP and return JWT token with 2FA verified."""
-    db = get_db()
-
-    user = await db.users.find_one({"email": body.email.lower()})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Verify OTP
-    if not verify_otp(user.get("otp_code", ""), user.get("otp_expiry"), body.otp):
-        raise HTTPException(status_code=401, detail="Invalid or expired OTP code")
-
-    # Clear OTP and update last login
-    await db.users.update_one(
-        {"email": body.email.lower()},
-        {
-            "$set": {
-                "otp_code": "",
-                "otp_expiry": None,
-                "is_2fa_verified": True,
-                "last_login": datetime.now(timezone.utc),
-            }
-        },
-    )
-
-    # Issue JWT
     token = create_jwt(
         user_id=user["user_id"],
         email=user["email"],
@@ -224,9 +181,13 @@ async def verify_otp_endpoint(request: Request, body: OTPVerifyRequest):
         dashboard_access=user.get("dashboard_access", False),
     )
 
-    logger.info("2FA verified for: %s", body.email)
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {"last_login": datetime.now(timezone.utc)}},
+    )
+
     return AuthResponse(
-        message="Verification successful!",
+        message="Login successful.",
         token=token,
         user={
             "user_id": user["user_id"],
@@ -238,28 +199,6 @@ async def verify_otp_endpoint(request: Request, body: OTPVerifyRequest):
         },
         requires_otp=False,
     )
-
-
-# ── POST /auth/resend-otp ───────────────────────────────────
-@router.post("/resend-otp", response_model=AuthResponse)
-@limiter.limit("3/minute")
-async def resend_otp(request: Request, body: ResendOTPRequest):
-    """Resend OTP to user's email."""
-    db = get_db()
-
-    user = await db.users.find_one({"email": body.email.lower()})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    otp, otp_expiry = generate_otp()
-    await db.users.update_one(
-        {"email": body.email.lower()},
-        {"$set": {"otp_code": otp, "otp_expiry": otp_expiry}},
-    )
-
-    await send_otp_email(body.email.lower(), otp, user.get("name", ""))
-
-    return AuthResponse(message="New verification code sent to your email.", requires_otp=True)
 
 
 # ── GET /auth/me ─────────────────────────────────────────────

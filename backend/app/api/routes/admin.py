@@ -8,8 +8,8 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from app.db.database import get_db
-from app.db.auth_models import (
+from app.database.database import get_db
+from app.models.auth_models import (
     UpdateRoleRequest,
     UpdateAccessRequest,
     UserListItem,

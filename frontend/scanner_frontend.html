@@ -158,7 +158,8 @@
                         <span id="status-badge"
                             class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Ready</span>
                     </div>
-                    <div class="space-y-6">
+                    <div class="space-y-4">
+                        <!-- Detection Result Header -->
                         <div class="flex items-center justify-between p-4 bg-surface-container-low rounded-2xl">
                             <div class="flex items-center gap-4">
                                 <div
@@ -175,7 +176,48 @@
                                 <p id="result-confidence" class="text-lg font-bold text-primary">--</p>
                             </div>
                         </div>
-                        <!-- Progress Bar Container -->
+
+                        <!-- Match Details (shown on detect with match) -->
+                        <div id="match-details" class="hidden">
+                            <div id="owners-list-container" class="bg-surface-container-low p-4 rounded-2xl mb-4">
+                                <p class="text-xs text-on-surface-variant font-medium mb-2">Ownership Attribution</p>
+                                <div id="owners-list" class="space-y-3"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="bg-surface-container-low p-4 rounded-2xl">
+                                    <p class="text-xs text-on-surface-variant font-medium">Similar Pages</p>
+                                    <p id="result-pages" class="text-sm font-bold mt-1">--</p>
+                                </div>
+                                <div class="bg-surface-container-low p-4 rounded-2xl">
+                                    <p class="text-xs text-on-surface-variant font-medium">Matched File(s)</p>
+                                    <p id="result-files" class="text-sm font-bold mt-1 truncate" title="">--</p>
+                                </div>
+                            </div>
+                            <div id="page-list-container" class="bg-surface-container-low p-4 rounded-2xl hidden">
+                                <p class="text-xs text-on-surface-variant font-medium mb-2">Page-wise Matches</p>
+                                <div id="page-list" class="text-sm text-on-surface space-y-1 max-h-40 overflow-y-auto"></div>
+                            </div>
+                        </div>
+
+                        <!-- Registration Details (shown on successful upload) -->
+                        <div id="register-details" class="hidden">
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="bg-surface-container-low p-4 rounded-2xl">
+                                    <p class="text-xs text-on-surface-variant font-medium">Owner</p>
+                                    <p id="reg-owner" class="text-sm font-bold mt-1">--</p>
+                                </div>
+                                <div class="bg-surface-container-low p-4 rounded-2xl">
+                                    <p class="text-xs text-on-surface-variant font-medium">Total Pages</p>
+                                    <p id="reg-pages" class="text-sm font-bold mt-1">--</p>
+                                </div>
+                            </div>
+                            <div class="bg-surface-container-low p-4 rounded-2xl">
+                                <p class="text-xs text-on-surface-variant font-medium">Registered At</p>
+                                <p id="reg-time" class="text-sm font-bold mt-1">--</p>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar -->
                         <div class="bg-surface-container-low p-6 rounded-2xl">
                             <div class="flex justify-between mb-4">
                                 <span id="progress-text" class="text-sm font-bold">System Idle</span>
@@ -186,8 +228,7 @@
                                     class="h-full bg-primary w-[0%] rounded-full shadow-[0_0_8px_rgba(0,78,159,0.5)] transition-all duration-500">
                                 </div>
                             </div>
-                            <div id="result-message" class="mt-4 text-xs font-mono text-on-surface-variant break-all">
-                            </div>
+                            <p id="result-message" class="mt-4 text-sm text-on-surface-variant"></p>
                         </div>
                     </div>
                 </div>
@@ -294,11 +335,58 @@
         const progressText = document.getElementById('progress-text');
         const progressStatus = document.getElementById('progress-status');
 
+        // Match detail elements
+        const matchDetails = document.getElementById('match-details');
+        const ownersList = document.getElementById('owners-list');
+        const resultPages = document.getElementById('result-pages');
+        const resultFiles = document.getElementById('result-files');
+        const pageListContainer = document.getElementById('page-list-container');
+        const pageList = document.getElementById('page-list');
+
+        // Registration detail elements
+        const registerDetails = document.getElementById('register-details');
+        const regOwner = document.getElementById('reg-owner');
+        const regPages = document.getElementById('reg-pages');
+        const regTime = document.getElementById('reg-time');
+
         let selectedFile = null;
+
+        function hideAllDetails() {
+            matchDetails.classList.add('hidden');
+            registerDetails.classList.add('hidden');
+            pageListContainer.classList.add('hidden');
+            pageList.innerHTML = '';
+            ownersList.innerHTML = '';
+        }
+
+        function renderOwnersList(owners) {
+            ownersList.innerHTML = '';
+            if (!owners || owners.length === 0) {
+                ownersList.innerHTML = '<p class="text-sm font-bold text-on-surface">--</p>';
+                return;
+            }
+            owners.forEach(o => {
+                const el = document.createElement('div');
+                el.className = 'py-2 border-b border-outline-variant/20 last:border-0';
+                el.innerHTML = `
+                    <div class="flex items-center justify-between mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary flex-shrink-0">${o.owner_name.charAt(0).toUpperCase()}</div>
+                            <span class="text-sm font-bold text-on-surface">${o.owner_name}</span>
+                        </div>
+                        <span class="text-sm font-bold text-primary whitespace-nowrap ml-2">${o.contribution}% Match</span>
+                    </div>
+                    <div class="w-full bg-surface-container-highest rounded-full h-1.5 overflow-hidden">
+                        <div class="h-full bg-primary rounded-full transition-all duration-700" style="width: ${Math.min(o.contribution, 100)}%"></div>
+                    </div>
+                `;
+                ownersList.appendChild(el);
+            });
+        }
 
         // Trigger file input dialog
         dropZone.addEventListener('click', (e) => {
-            if (!btnUpload.contains(e.target) && !btnDetect.contains(e.target)) {
+            if (!btnUpload.contains(e.target) && !btnDetect.contains(e.target) && !ownerNameInput.contains(e.target)) {
                 fileInput.click();
             }
         });
@@ -316,7 +404,7 @@
                 return;
             }
             const ownerVal = ownerNameInput.value.trim();
-            if (endpoint === 'upload' && !ownerVal) {
+            if (endpoint === 'register' && !ownerVal) {
                 alert("Please enter an owner name before uploading.");
                 return;
             }
@@ -324,7 +412,9 @@
             const formData = new FormData();
             formData.append('file', selectedFile);
             if (ownerVal) {
-                formData.append('owner', ownerVal);
+                formData.append('owner_name', ownerVal);
+                const user = JSON.parse(localStorage.getItem('datadna_user') || '{}');
+                formData.append('owner_id', user.user_id || 'unknown_id');
             }
 
             // UI Update: loading
@@ -335,10 +425,19 @@
             resultName.textContent = "Processing...";
             resultConfidence.textContent = "---";
             resultMessage.textContent = "";
+            hideAllDetails();
+
+            // Get auth token
+            const token = localStorage.getItem('datadna_token');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
 
             try {
-                const response = await fetch(`http://localhost:8000/${endpoint}`, {
+                const response = await fetch(`http://localhost:8000/ownership/${endpoint}`, {
                     method: 'POST',
+                    headers: headers,
                     body: formData
                 });
                 const data = await response.json();
@@ -349,32 +448,112 @@
                 progressStatus.textContent = "Done";
 
                 if (response.ok) {
-                    if (endpoint === 'detect') {
-                        if (data.match_found) {
-                            resultName.textContent = data.result.owner_id;
-                            resultConfidence.textContent = "100%";
+                    if (endpoint === 'verify') {
+                        // ── DETECT results ──
+                        if (data.status !== 'no_match' && data.overall_similarity > 0) {
+                            const owners = data.owners || [];
+                            const owner = data.dominant_owner;
+                            // Show all owner names in the header
+                            if (owners.length > 1) {
+                                resultName.textContent = owners.map(o => o.owner_name).join(', ');
+                            } else if (owner) {
+                                resultName.textContent = owner.owner_name;
+                            } else {
+                                resultName.textContent = 'Match Found';
+                            }
+                            resultConfidence.textContent = data.overall_similarity + "%";
+                            resultMessage.textContent = data.message;
+
+                            // Show match details card
+                            matchDetails.classList.remove('hidden');
+
+                            // Render ALL owners
+                            renderOwnersList(owners);
+
+                            // Total unique matched pages (avoid double-counting pages matched to multiple owners)
+                            const uniqueTargetPages = new Set((data.matched_pages || []).map(m => m.target_page));
+                            const pagesList = Array.from(uniqueTargetPages).sort((a, b) => a - b).join(', ');
+                            resultPages.textContent = `${uniqueTargetPages.size} page(s): ${pagesList}`;
+
+                            // Collect all matched docs from all owners
+                            const allDocs = [...new Set(owners.flatMap(o => o.matched_documents || []))];
+                            resultFiles.textContent = allDocs.join(', ') || 'Unknown';
+                            resultFiles.title = resultFiles.textContent;
+
+                            // Build page-wise match list
+                            if (data.matched_pages && data.matched_pages.length > 0) {
+                                pageListContainer.classList.remove('hidden');
+                                pageList.innerHTML = '';
+                                data.matched_pages.forEach(m => {
+                                    const row = document.createElement('p');
+                                    row.className = 'flex justify-between text-xs py-1 border-b border-outline-variant/20 last:border-0';
+                                    row.innerHTML = `<span>Your Page ${m.target_page} → <strong>${m.owner_name}</strong>'s "${m.matched_document}" Page ${m.matched_page}</span><span class="text-primary font-bold">${m.similarity}%</span>`;
+                                    pageList.appendChild(row);
+                                });
+                            }
                         } else {
-                            resultName.textContent = "No Match";
+                            resultName.textContent = "No Match Found";
                             resultConfidence.textContent = "0%";
+                            resultMessage.textContent = "This file does not match any registered documents.";
                         }
+
                     } else {
-                        resultName.textContent = "File Stored";
-                        resultConfidence.textContent = "Protected";
+                        // ── UPLOAD results ──
+                        if (data.status === 'registered') {
+                            resultName.textContent = "✅ Registered Successfully";
+                            resultConfidence.textContent = "100%";
+
+                            // Show registration details card
+                            registerDetails.classList.remove('hidden');
+                            regOwner.textContent = data.owner_name || ownerVal;
+                            regPages.textContent = data.total_pages + " page(s)";
+                            const now = data.registered_at ? new Date(data.registered_at) : new Date();
+                            regTime.textContent = now.toLocaleString('en-IN', {
+                                dateStyle: 'medium', timeStyle: 'short'
+                            });
+
+                            resultMessage.textContent = "Your file has been securely registered and fingerprinted.";
+                        } else {
+                            // Blocked due to similarity
+                            resultName.textContent = "Registration Blocked";
+                            resultConfidence.textContent = data.overall_similarity + "% Similar";
+                            resultMessage.textContent = data.message;
+
+                            // Show ALL owners who own the similar content
+                            const owners = data.owners || [];
+                            if (owners.length > 0) {
+                                matchDetails.classList.remove('hidden');
+                                renderOwnersList(owners);
+                                // Unique matched pages across all owners
+                                const uniqueTargetPages = new Set((data.matched_pages || []).map(m => m.target_page));
+                                const pagesList = Array.from(uniqueTargetPages).sort((a, b) => a - b).join(', ');
+                                resultPages.textContent = `${uniqueTargetPages.size} page(s): ${pagesList}`;
+                                const allDocs = [...new Set(owners.flatMap(o => o.matched_documents || []))];
+                                resultFiles.textContent = allDocs.join(', ') || 'Unknown';
+                                resultFiles.title = resultFiles.textContent;
+                            } else if (data.dominant_owner) {
+                                matchDetails.classList.remove('hidden');
+                                renderOwnersList([data.dominant_owner]);
+                                resultPages.textContent = (data.dominant_owner.pages_matched || '—') + " page(s)";
+                                const docs = data.dominant_owner.matched_documents || [];
+                                resultFiles.textContent = docs.join(', ') || 'Unknown';
+                                resultFiles.title = resultFiles.textContent;
+                            }
+                        }
                     }
-                    resultMessage.textContent = JSON.stringify(data, null, 2);
                 } else {
                     resultName.textContent = "Error";
-                    resultMessage.textContent = data.detail || JSON.stringify(data);
+                    resultMessage.textContent = typeof data.detail === 'string' ? data.detail : "Something went wrong. Please try again.";
                 }
             } catch (err) {
                 resultName.textContent = "Network Error";
-                resultMessage.textContent = err.message;
+                resultMessage.textContent = "Could not reach the server. Please check your connection.";
                 progressBar.style.width = "0%";
             }
         }
 
-        btnUpload.addEventListener('click', () => apiCall('upload', 'Uploading to Secure Vault'));
-        btnDetect.addEventListener('click', () => apiCall('detect', 'Scanning Global Network'));
+        btnUpload.addEventListener('click', () => apiCall('register', 'Registering Document'));
+        btnDetect.addEventListener('click', () => apiCall('verify', 'Scanning Global Network'));
     </script>
 </body>
 
